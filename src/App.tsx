@@ -15,17 +15,25 @@ type Payload = {
 function App() {
     const [rating, setRating] = useState(0);
     const [error, setError] = useState('');
+    const [status, setStatus] = useState('idle'); //'idle', 'success', 'error'
 
-    const payload: Payload = {
-        category_id: 1,
-        student_id: 1,
-        term_id: 1,
-        user_id: 1,
-        level: rating,
-    };
-
-    async function handleRating(e) {
+    async function handleRating(e: React.MouseEvent<HTMLButtonElement>) {
         e.preventDefault();
+        //if no rating guard
+        if (rating === 0) {
+            setError('Please pick a level');
+            setStatus('error');
+            return;
+        }
+        //set payload
+        const payload: Payload = {
+            category_id: 1,
+            student_id: 1,
+            term_id: 1,
+            user_id: 1,
+            level: rating,
+        };
+
         const { data, error } = await supabase
             .from('ratings')
             .insert(payload)
@@ -34,8 +42,11 @@ function App() {
         if (error) {
             console.error(error);
             setError(`Rating could not be saved. Please Try again`);
-            throw new Error(`Rating could not be saved. Please Try again`);
+            setStatus('error');
+            return;
         }
+
+        setStatus('success');
     }
 
     return (
@@ -45,41 +56,37 @@ function App() {
                 <label htmlFor="rating">choose your rating</label>
                 <br></br>
                 <button
-                    value={1}
+                    type="button"
                     onClick={() => {
                         setRating(1);
                     }}
-                    name="rating"
                     className="bg-red-500 rounded-md w-auto m-2 p-2 border-2 border-black"
                 >
                     1
                 </button>
                 <button
+                    type="button"
                     onClick={() => {
                         setRating(2);
                     }}
-                    value={2}
-                    name="rating"
                     className="bg-yellow-500 rounded-md w-auto m-2 p-2 border-2 border-black"
                 >
                     2
                 </button>
                 <button
+                    type="button"
                     onClick={() => {
                         setRating(3);
                     }}
-                    value={3}
-                    name="rating"
                     className="bg-green-500 rounded-md w-auto m-2 p-2 border-2 border-black"
                 >
                     3
                 </button>
                 <button
+                    type="button"
                     onClick={() => {
                         setRating(4);
                     }}
-                    value={4}
-                    name="rating"
                     className="bg-blue-500 rounded-md w-auto m-2 p-2 border-2 border-black"
                 >
                     4
@@ -93,10 +100,10 @@ function App() {
                     Save Score
                 </button>
 
-                {!error ? (
-                    <ErrorMessage message={error} />
-                ) : (
+                {status === 'success' ? (
                     <SuccessMessage message={'Saved rating'} />
+                ) : (
+                    <ErrorMessage message={error} />
                 )}
             </form>
         </div>

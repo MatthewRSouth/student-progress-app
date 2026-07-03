@@ -1,43 +1,29 @@
-import { useEffect, useState } from 'react';
-import supabase from '../../services/supabase';
+import DashboardHeaders from './DashboardHeaders';
+import StudentList from './StudentList';
+import useFetch from '../../hooks/useFetch';
+
+//types
+type Category = { id: number; criteria: string };
+type Student = { id: number; name: string };
 
 function Dashboard() {
-    const [data, setData] = useState([]);
-    const [error, setError] = useState('');
-    const [loading, setLoading] = useState(false);
-    useEffect(function () {
-        async function fetchCategories() {
-            try {
-                setLoading(true);
-                const { data: categories, error } = await supabase
-                    .from('categories')
-                    .select('id, criteria');
+    const { data: categories, error: categoriesError } = useFetch<Category>(
+        'categories',
+        'id, criteria',
+    );
+    const { data: students, error: studentsError } = useFetch<Student>(
+        'students',
+        'id, name',
+    );
 
-                if (error) throw error;
-
-                setData(categories);
-            } catch (err) {
-                setError(err);
-            } finally {
-                setLoading(false);
-            }
-        }
-        fetchCategories();
-    }, []);
-    if (loading) {
-        return <p>Loading...</p>;
-    }
-    if (error) {
-        return <p>There was an error: {error}</p>;
+    if (categoriesError || studentsError) {
+        return <p>There was an error loading the dashboard.</p>;
     }
     return (
-        <div className="flex justify-center items-center w-auto mt-5">
-            <ul>
-                {data.map((category) => (
-                    <li key={category.id}>{category.criteria}</li>
-                ))}
-            </ul>
-        </div>
+        <>
+            <DashboardHeaders categories={categories}></DashboardHeaders>
+            <StudentList students={students}></StudentList>
+        </>
     );
 }
 

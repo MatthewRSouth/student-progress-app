@@ -1,5 +1,5 @@
-import SuccessMessage from '../../ui/SuccessMessage';
 import ErrorMessage from '../../ui/ErrorMessage';
+import SuccessMessage from '../../ui/SuccessMessage';
 
 interface ModalProps {
     setRating: (rating: number) => void;

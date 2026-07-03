@@ -1,7 +1,7 @@
 //types
-type students = { id: number; name: string };
+type Student = { id: number; name: string };
 type studentListProps = {
-    students: students[];
+    students: Student[];
 };
 
 function StudentList({ students }: studentListProps) {

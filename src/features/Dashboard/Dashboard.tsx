@@ -17,7 +17,7 @@ function Dashboard() {
     );
 
     if (categoriesError || studentsError) {
-        return <p>There was an error loading teh dashboard.</p>;
+        return <p>There was an error loading the dashboard.</p>;
     }
     return (
         <>

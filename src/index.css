@@ -1,4 +1,34 @@
 @import 'tailwindcss';
 
 @theme {
+    --color-app-bg: #f4efe6;
+    --color-card-bg: #fff;
 }
+body {
+    background-color: var(--color-app-bg);
+}
+
+/* Score colors (each has a solid, a soft tint for backgrounds, and a deep shade for text):
+
+1 · Needs improvement — solid #E0604C, soft #F8E1DB, deep #B5402F
+2 · Getting there — solid #E3A93E, soft #F8ECD4, deep #9A6A12
+3 · Doing well — solid #5BA567, soft #E2EFE2, deep #3C7A47
+4 · Excellent — solid #4D81B3, soft #DEEAF3, deep #345D86
+Brand / UI
+
+Brand teal (buttons, accents, class-avg line): #18605C
+Ink / near-black text: #2E2A24
+Secondary text: #5C5343
+Muted / labels: #8C8377 and lighter #A39A8C
+Faint placeholder text: #B0A799 / #BCB3A2
+Surfaces & lines
+
+App background: #F4EFE6
+Card / panel white: #FFFFFF
+Warm off-white (top bar, inputs, note fields): #FBF8F2 and #FAF7F1
+Progress-bar track / empty fill: #EFE7D8
+Alt row stripe: #FAF6EE
+Borders: #EFEAE1 (card), #E6DDCE / #ECE6DC (inputs), #F2EDE4 (hairlines)
+Class dots (tab identifiers): Chicks #E3A93E, Pups #C97B4A, Koalas #8A8F98, Tigers #D98A2B, Bears #7A5C42.
+
+Fonts: Bricolage Grotesque (headings), Hanken Grotesk (body). */

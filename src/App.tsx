@@ -35,7 +35,7 @@ function App() {
             level: rating,
         };
 
-        const { data, error } = await supabase
+        const { error } = await supabase
             .from('ratings')
             .insert(payload)
             .select();

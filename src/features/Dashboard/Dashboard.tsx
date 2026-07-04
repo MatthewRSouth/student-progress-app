@@ -22,7 +22,10 @@ function Dashboard() {
     return (
         <>
             <DashboardHeaders categories={categories}></DashboardHeaders>
-            <StudentList students={students}></StudentList>
+            <StudentList
+                students={students}
+                categories={categories}
+            ></StudentList>
         </>
     );
 }

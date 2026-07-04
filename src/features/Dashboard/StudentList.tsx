@@ -1,23 +1,24 @@
+import React from 'react';
 //types
 type Student = { id: number; name: string };
-type studentListProps = {
+type Category = { id: number; criteria: string };
+type StudentListProps = {
     students: Student[];
+    categories: Category[];
 };
 
-function StudentList({ students }: studentListProps) {
+function StudentList({ students, categories }: StudentListProps) {
     return (
-        <div className="grid grid-cols-[repeat(1,200px)] text-center grid-rows-[repeat(4,50px)]">
+        <div className="grid grid-cols-[200px_repeat(4,112px)] text-center">
             {students.map((student) => (
-                <div key={student.id}>{student.name}</div>
+                <React.Fragment key={student.id}>
+                    <div>{student.name}</div>
+                    {categories.map((category) => (
+                        <div key={`${student.id}-${category.id}`}></div>
+                    ))}
+                </React.Fragment>
             ))}
         </div>
-
-        // <div >
-        //             <span className="rounded-full bg-blue-300 p-4 mx-5 mt-2 text-blue-700">
-        //                 MS
-        //             </span>
-        //             <p>Matthew</p>
-        //         </div>
     );
 }
 

@@ -9,7 +9,7 @@ function DashboardHeaders({ categories }: DashboardHeadersProps) {
         <div className="grid grid-cols-[200px_repeat(5,112px)] text-center mt-5">
             <div>Student Name</div>
             {categories.map((category) => (
-                <div key={category.id}>{category.criteria}</div>
+                <div key={`$${category.id}`}>{category.criteria}</div>
             ))}
         </div>
     );

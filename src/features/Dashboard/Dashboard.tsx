@@ -1,7 +1,8 @@
 import DashboardHeaders from './DashboardHeaders';
 import StudentList from './StudentList';
+import ScoreModal from '../ScoreModal/ScoreModal';
 import useFetch from '../../hooks/useFetch';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 
 //types
 type Category = { id: number; criteria: string };
@@ -14,6 +15,11 @@ type Rating = {
 };
 
 function Dashboard() {
+    const [activeCell, setActiveCell] = useState<{
+        studentId: number;
+        categoryId: number;
+    } | null>(null);
+
     const { data: categories, error: categoriesError } = useFetch<Category>(
         'categories',
         'id, criteria',
@@ -49,7 +55,12 @@ function Dashboard() {
                 students={students}
                 categories={categories}
                 ratingsLookup={ratingLookup}
+                activeCell={activeCell}
+                onActiveCell={(studentId, categoryId) =>
+                    setActiveCell({ studentId, categoryId })
+                }
             ></StudentList>
+            {activeCell && <ScoreModal></ScoreModal>}
         </div>
     );
 }

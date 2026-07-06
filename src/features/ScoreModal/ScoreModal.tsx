@@ -2,14 +2,14 @@ import ErrorMessage from '../../ui/ErrorMessage';
 import SuccessMessage from '../../ui/SuccessMessage';
 
 interface ModalProps {
-    setRating: (rating: number) => void;
+    onSetRating: (rating: number) => void;
     onHandleRating: (e: React.MouseEvent<HTMLButtonElement>) => void;
     errorMessage: string;
     status: string;
 }
 
 function ScoreModal({
-    setRating,
+    onSetRating,
     onHandleRating,
     errorMessage,
     status,
@@ -23,7 +23,7 @@ function ScoreModal({
                 <button
                     type="button"
                     onClick={() => {
-                        setRating(1);
+                        onSetRating(1);
                     }}
                     className="bg-red-500 rounded-md w-auto m-2 p-2 border-2 border-black"
                 >
@@ -32,7 +32,7 @@ function ScoreModal({
                 <button
                     type="button"
                     onClick={() => {
-                        setRating(2);
+                        onSetRating(2);
                     }}
                     className="bg-yellow-500 rounded-md w-auto m-2 p-2 border-2 border-black"
                 >
@@ -41,7 +41,7 @@ function ScoreModal({
                 <button
                     type="button"
                     onClick={() => {
-                        setRating(3);
+                        onSetRating(3);
                     }}
                     className="bg-green-500 rounded-md w-auto m-2 p-2 border-2 border-black"
                 >
@@ -50,7 +50,7 @@ function ScoreModal({
                 <button
                     type="button"
                     onClick={() => {
-                        setRating(4);
+                        onSetRating(4);
                     }}
                     className="bg-blue-500 rounded-md w-auto m-2 p-2 border-2 border-black"
                 >

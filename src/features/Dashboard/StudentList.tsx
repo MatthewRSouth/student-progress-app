@@ -12,13 +12,23 @@ type StudentListProps = {
     students: Student[];
     categories: Category[];
     ratingsLookup: Record<string, Rating>;
+    activeCell: {
+        studentId: number;
+        categoryId: number;
+    } | null;
+    onActiveCell: (studentId: number, categoryId: number) => void;
 };
 
 function StudentList({
     students,
     categories,
     ratingsLookup,
+    activeCell,
+    onActiveCell,
 }: StudentListProps) {
+    function onCellClick(studentId: number, CategoryId: number) {
+        onActiveCell(studentId, CategoryId);
+    }
     return (
         <>
             {students.map((student) => (
@@ -28,7 +38,12 @@ function StudentList({
                         const rating =
                             ratingsLookup[`${student.id}-${category.id}`];
                         return (
-                            <div key={`${student.id}-${category.id}`}>
+                            <div
+                                onClick={() =>
+                                    onCellClick(student.id, category.id)
+                                }
+                                key={`${student.id}-${category.id}`}
+                            >
                                 {rating ? rating.level : ''}
                             </div>
                         );

@@ -1,4 +1,6 @@
 import React from 'react';
+import Student from './Student';
+
 //types
 type Student = { id: number; name: string };
 type Category = { id: number; criteria: string };
@@ -40,7 +42,7 @@ function StudentList({
                                 }
                                 key={`${student.id}-${category.id}`}
                             >
-                                {rating ? rating.level : ''}
+                                {rating ? rating.level : 'choose'}
                             </div>
                         );
                     })}

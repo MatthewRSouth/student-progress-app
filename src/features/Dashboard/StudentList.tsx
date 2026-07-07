@@ -23,12 +23,8 @@ function StudentList({
     students,
     categories,
     ratingsLookup,
-    activeCell,
     onActiveCell,
 }: StudentListProps) {
-    function onCellClick(studentId: number, CategoryId: number) {
-        onActiveCell(studentId, CategoryId);
-    }
     return (
         <>
             {students.map((student) => (
@@ -40,7 +36,7 @@ function StudentList({
                         return (
                             <div
                                 onClick={() =>
-                                    onCellClick(student.id, category.id)
+                                    onActiveCell(student.id, category.id)
                                 }
                                 key={`${student.id}-${category.id}`}
                             >

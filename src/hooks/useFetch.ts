@@ -6,33 +6,29 @@ function useFetch<T>(tableName: string, columns: string) {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
 
-    useEffect(
-        function () {
-            async function fetchData() {
-                try {
-                    setLoading(true);
-                    const { data: result, error } = await supabase
-                        .from(tableName)
-                        .select(columns);
-                    if (error) throw error;
+    async function fetchData() {
+        try {
+            setLoading(true);
+            const { data: result, error } = await supabase
+                .from(tableName)
+                .select(columns);
+            if (error) throw error;
 
-                    setData(result as T[]);
-                } catch (err) {
-                    const message =
-                        err instanceof Error
-                            ? err.message
-                            : 'Something went wrong';
-                    setError(message);
-                } finally {
-                    setLoading(false);
-                }
-            }
-            fetchData();
-        },
-        [tableName, columns],
-    );
+            setData(result as T[]);
+        } catch (err) {
+            const message =
+                err instanceof Error ? err.message : 'Something went wrong';
+            setError(message);
+        } finally {
+            setLoading(false);
+        }
+    }
 
-    return { data, loading, error };
+    useEffect(() => {
+        fetchData();
+    }, [tableName, columns]);
+
+    return { data, loading, error, refetch: fetchData };
 }
 
 export default useFetch;

@@ -1,6 +1,4 @@
 import React from 'react';
-import Student from './Student';
-
 //types
 type Student = { id: number; name: string };
 type Category = { id: number; criteria: string };
@@ -29,20 +27,25 @@ function StudentList({
 }: StudentListProps) {
     return (
         <>
-            {students.map((student) => (
+            {students.map((student, rowIndex) => (
                 <React.Fragment key={student.id}>
-                    <div>{student.name}</div>
+                    <div
+                        className={` cursor-pointer hover:bg-[#D8CFBE] ${rowIndex % 2 === 0 ? 'bg-[#FAF6EE]' : ''}`}
+                    >
+                        {student.name}
+                    </div>
                     {categories.map((category) => {
                         const rating =
                             ratingsLookup[`${student.id}-${category.id}`];
                         return (
                             <div
+                                className={` cursor-pointer hover:bg-[#D8CFBE] ${rowIndex % 2 === 0 ? 'bg-[#FAF6EE]' : ''}`}
                                 onClick={() =>
                                     onActiveCell(student.id, category.id)
                                 }
                                 key={`${student.id}-${category.id}`}
                             >
-                                {rating ? rating.level : 'choose'}
+                                {rating ? rating.level : '+'}
                             </div>
                         );
                     })}

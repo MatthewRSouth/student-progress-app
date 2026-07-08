@@ -7,9 +7,11 @@ type DashboardHeadersProps = {
 function DashboardHeaders({ categories }: DashboardHeadersProps) {
     return (
         <>
-            <div>Student Name</div>
+            <div className="">Student Name</div>
             {categories.map((category) => (
-                <div key={`${category.id}`}>{category.criteria}</div>
+                <div className="" key={`${category.id}`}>
+                    {category.criteria}
+                </div>
             ))}
         </>
     );

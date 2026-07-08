@@ -110,25 +110,31 @@ function Dashboard() {
     }
 
     return (
-        <div className="grid grid-cols-[200px_repeat(4,112px)] text-center">
-            <DashboardHeaders categories={categories}></DashboardHeaders>
-            <StudentList
-                students={students}
-                categories={categories}
-                ratingsLookup={ratingLookup}
-                activeCell={activeCell}
-                onActiveCell={(studentId, categoryId) =>
-                    setActiveCell({ studentId, categoryId })
-                }
-            ></StudentList>
-            {activeCell && (
-                <ScoreModal
-                    onSetRating={setRating}
-                    onHandleRating={handleRating}
-                    status={status}
-                    errorMessage={error}
-                ></ScoreModal>
-            )}
+        <div className="flex justify-center">
+            <div className="flex justify-center items-center bg-white w-auto rounded-lg mt-4 p-2">
+                <div className="grid grid-cols-[200px_repeat(4,112px)] text-center">
+                    <DashboardHeaders
+                        categories={categories}
+                    ></DashboardHeaders>
+                    <StudentList
+                        students={students}
+                        categories={categories}
+                        ratingsLookup={ratingLookup}
+                        activeCell={activeCell}
+                        onActiveCell={(studentId, categoryId) =>
+                            setActiveCell({ studentId, categoryId })
+                        }
+                    ></StudentList>
+                    {activeCell && (
+                        <ScoreModal
+                            onSetRating={setRating}
+                            onHandleRating={handleRating}
+                            status={status}
+                            errorMessage={error}
+                        ></ScoreModal>
+                    )}
+                </div>
+            </div>
         </div>
     );
 }

@@ -11,7 +11,7 @@ type Student = { id: number; name: string };
 type Rating = {
     student_id: number;
     category_id: number;
-    level: number;
+    level: 1 | 2 | 3 | 4;
     created_at: string;
 };
 // types
@@ -24,6 +24,7 @@ type Payload = {
 };
 
 function Dashboard() {
+    //State vars
     const [rating, setRating] = useState(0);
     const [error, setError] = useState('');
     const [status, setStatus] = useState('idle'); //'idle', 'success', 'error'
@@ -31,6 +32,16 @@ function Dashboard() {
         studentId: number;
         categoryId: number;
     } | null>(null);
+
+    //Supabase Fetches
+    const { data: categories, error: categoriesError } = useFetch<Category>(
+        'categories',
+        'id, criteria',
+    );
+    const { data: students, error: studentsError } = useFetch<Student>(
+        'students',
+        'id, name',
+    );
 
     const {
         data: ratings,
@@ -42,6 +53,7 @@ function Dashboard() {
     );
 
     async function handleRating(e: React.MouseEvent<HTMLButtonElement>) {
+        //This handler creates the payload and inserts the payload into supabase.
         e.preventDefault();
         //if no rating guard
         if (rating === 0) {
@@ -81,19 +93,7 @@ function Dashboard() {
         setRating(0);
     }
 
-    const { data: categories, error: categoriesError } = useFetch<Category>(
-        'categories',
-        'id, criteria',
-    );
-    const { data: students, error: studentsError } = useFetch<Student>(
-        'students',
-        'id, name',
-    );
-    // const { data: ratings, error: ratingsError } = useFetch<Rating>(
-    //     'ratings',
-    //     'student_id, category_id, level, created_at',
-    // );
-
+    //Memo to rate look up
     const ratingLookup = useMemo(() => {
         const result: Record<string, Rating> = {};
         for (const rating of ratings) {

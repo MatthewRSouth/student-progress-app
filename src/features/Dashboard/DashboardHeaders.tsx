@@ -9,9 +9,7 @@ function DashboardHeaders({ categories }: DashboardHeadersProps) {
         <>
             <div className="">Student Name</div>
             {categories.map((category) => (
-                <div className="" key={`${category.id}`}>
-                    {category.criteria}
-                </div>
+                <div>{category.criteria}</div>
             ))}
         </>
     );

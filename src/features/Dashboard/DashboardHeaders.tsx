@@ -1,5 +1,6 @@
 //types
-type Category = { id: number; criteria: string };
+import { type Category } from '../../types';
+
 type DashboardHeadersProps = {
     categories: Category[];
 };
@@ -9,7 +10,7 @@ function DashboardHeaders({ categories }: DashboardHeadersProps) {
         <>
             <div className="">Student Name</div>
             {categories.map((category) => (
-                <div>{category.criteria}</div>
+                <div key={category.id}>{category.criteria}</div>
             ))}
         </>
     );

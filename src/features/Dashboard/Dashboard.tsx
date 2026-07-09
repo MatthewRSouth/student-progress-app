@@ -11,14 +11,7 @@ import StudentList from './StudentList';
 import ScoreModal from '../ScoreModal/ScoreModal';
 
 //types
-type Category = { id: number; criteria: string };
-type Student = { id: number; name: string };
-type Rating = {
-    student_id: number;
-    category_id: number;
-    level: 1 | 2 | 3 | 4;
-    created_at: string;
-};
+import { type Rating, type Category, type Student } from '../../types';
 
 function Dashboard() {
     //State vars

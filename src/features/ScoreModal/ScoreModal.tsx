@@ -34,19 +34,25 @@ function ScoreModal({
                 ))}
 
                 <br></br>
-                <button
-                    type="submit"
-                    onClick={onHandleRating}
-                    className="bg-black text-white rounded-md cursor-pointer w-auto m-2 p-2 border-2 border-black"
-                >
-                    Save Score
-                </button>
+                <div className="flex">
+                    <button className="bg-transparent text-black rounded-md cursor-pointer w-auto m-2 p-2 border-2 border-black">
+                        cancel
+                    </button>
+                    <button
+                        type="submit"
+                        onClick={onHandleRating}
+                        className="bg-black text-white rounded-md text-sm cursor-pointer w-auto m-2 p-2 border-2 border-black"
+                    >
+                        Save Score
+                    </button>
 
-                {status === 'success' ? (
-                    <SuccessMessage message={'Saved rating'} />
-                ) : (
-                    <ErrorMessage message={errorMessage} />
-                )}
+                    <br></br>
+                    {status === 'success' ? (
+                        <SuccessMessage message={'Saved rating'} />
+                    ) : (
+                        <ErrorMessage message={errorMessage} />
+                    )}
+                </div>
             </form>
         </div>
     );

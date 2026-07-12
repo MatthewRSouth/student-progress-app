@@ -19,6 +19,7 @@ function useRateStudent(refetchRatings: () => void, onSuccess: () => void) {
     async function handleRating(
         e: React.MouseEvent<HTMLButtonElement>,
         activeCell: { studentId: number; categoryId: number } | null,
+        termId: number | null,
     ) {
         //This handler creates the payload and inserts the payload into supabase.
         e.preventDefault();
@@ -33,11 +34,16 @@ function useRateStudent(refetchRatings: () => void, onSuccess: () => void) {
             setStatus('error');
             return;
         }
+        if (termId === null) {
+            setError('Please pick a term');
+            setStatus('error');
+            return;
+        }
         //set payload
         const payload: Payload = {
             category_id: activeCell.categoryId,
             student_id: activeCell.studentId,
-            term_id: 1,
+            term_id: termId,
             user_id: 1,
             level: rating,
         };

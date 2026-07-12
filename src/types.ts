@@ -6,3 +6,4 @@ export type Rating = {
     level: 1 | 2 | 3 | 4;
     created_at: string;
 };
+export type Term = { id: number; term: string };

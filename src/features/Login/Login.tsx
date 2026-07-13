@@ -9,13 +9,14 @@ function Login() {
     const [loading, setLoading] = useState(false);
 
     const handleSignIn = async (e: React.MouseEvent<HTMLButtonElement>) => {
+        e.preventDefault();
         try {
-            e.preventDefault();
             setLoading(true);
             const { error } = await supabase.auth.signInWithPassword({
                 email,
                 password,
             });
+            if (error) throw error;
         } catch (error) {
             setError('Invalid credentials. Please try again.');
             console.error(error);

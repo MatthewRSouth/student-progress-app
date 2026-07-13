@@ -10,6 +10,9 @@ import DashboardHeaders from './DashboardHeaders';
 import StudentList from './StudentList';
 import ScoreModal from '../ScoreModal/ScoreModal';
 
+//service imports
+import supabase from '../../services/supabase';
+
 //types
 import {
     type Rating,
@@ -17,8 +20,11 @@ import {
     type Student,
     type Term,
 } from '../../types';
+type DashboardProps = {
+    userId: string;
+};
 
-function Dashboard() {
+function Dashboard({ userId }: DashboardProps) {
     //State vars
     const [selectedTermId, setSelectedTermId] = useState<number | null>(null);
 
@@ -69,50 +75,69 @@ function Dashboard() {
         return result;
     }, [ratings]);
 
+    const handleSignOut = async () => {
+        await supabase.auth.signOut();
+    };
+
     if (categoriesError || studentsError || ratingsError || termsError) {
         return <p>There was an error loading the dashboard.</p>;
     }
 
     return (
-        <div className="flex flex-col justify-center items-center">
-            <select
-                value={selectedTermId ?? ''}
-                onChange={(e) => setSelectedTermId(Number(e.target.value))}
-            >
-                <option value="">Select a term</option>
-                {terms.map((term) => (
-                    <option key={term.id} value={term.id}>
-                        {term.term}
-                    </option>
-                ))}
-            </select>
-            <div className="flex justify-center items-center bg-white w-auto rounded-lg mt-4 p-2">
-                <div className="grid grid-cols-[200px_repeat(4,112px)] text-center">
-                    <DashboardHeaders
-                        categories={categories}
-                    ></DashboardHeaders>
-                    <StudentList
-                        students={students}
-                        categories={categories}
-                        ratingsLookup={ratingLookup}
-                        activeCell={activeCell}
-                        onActiveCell={(studentId, categoryId) =>
-                            setActiveCell({ studentId, categoryId })
-                        }
-                    ></StudentList>
-                    {activeCell && (
-                        <ScoreModal
-                            onSetRating={setRating}
-                            onHandleRating={(e) =>
-                                handleRating(e, activeCell, selectedTermId)
+        <>
+            <div className="flex w-full justify-end ">
+                <button
+                    className="mr-5 my-5 p-3 bg-black text-white text-center rounded-lg cursor-pointer hover:bg-gray-500"
+                    onClick={handleSignOut}
+                >
+                    logout
+                </button>
+            </div>
+            <div className="flex flex-col justify-center items-center">
+                <select
+                    value={selectedTermId ?? ''}
+                    onChange={(e) => setSelectedTermId(Number(e.target.value))}
+                >
+                    <option value="">Select a term</option>
+                    {terms.map((term) => (
+                        <option key={term.id} value={term.id}>
+                            {term.term}
+                        </option>
+                    ))}
+                </select>
+                <div className="flex justify-center items-center bg-white w-auto rounded-lg mt-4 p-2">
+                    <div className="grid grid-cols-[200px_repeat(4,112px)] text-center">
+                        <DashboardHeaders
+                            categories={categories}
+                        ></DashboardHeaders>
+                        <StudentList
+                            students={students}
+                            categories={categories}
+                            ratingsLookup={ratingLookup}
+                            activeCell={activeCell}
+                            onActiveCell={(studentId, categoryId) =>
+                                setActiveCell({ studentId, categoryId })
                             }
-                            status={status}
-                            errorMessage={error}
-                        ></ScoreModal>
-                    )}
+                        ></StudentList>
+                        {activeCell && (
+                            <ScoreModal
+                                onSetRating={setRating}
+                                onHandleRating={(e) =>
+                                    handleRating(
+                                        e,
+                                        activeCell,
+                                        selectedTermId,
+                                        userId,
+                                    )
+                                }
+                                status={status}
+                                errorMessage={error}
+                            ></ScoreModal>
+                        )}
+                    </div>
                 </div>
             </div>
-        </div>
+        </>
     );
 }
 

@@ -30,7 +30,7 @@ function App() {
     }, []);
     if (loading) return <LoginLoader>loading...</LoginLoader>;
     if (!session) return <Login />;
-    return <Dashboard />;
+    return <Dashboard userId={session.user.id} />;
 }
 
 export default App;

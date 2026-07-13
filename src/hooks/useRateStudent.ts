@@ -6,7 +6,7 @@ type Payload = {
     category_id: number;
     student_id: number;
     term_id: number;
-    user_id: number;
+    user_id: string;
     level: number;
 };
 
@@ -20,6 +20,7 @@ function useRateStudent(refetchRatings: () => void, onSuccess: () => void) {
         e: React.MouseEvent<HTMLButtonElement>,
         activeCell: { studentId: number; categoryId: number } | null,
         termId: number | null,
+        userId: string | null,
     ) {
         //This handler creates the payload and inserts the payload into supabase.
         e.preventDefault();
@@ -39,12 +40,17 @@ function useRateStudent(refetchRatings: () => void, onSuccess: () => void) {
             setStatus('error');
             return;
         }
+        if (userId === null) {
+            setError('Please sign in');
+            setStatus('error');
+            return;
+        }
         //set payload
         const payload: Payload = {
             category_id: activeCell.categoryId,
             student_id: activeCell.studentId,
             term_id: termId,
-            user_id: 1,
+            user_id: userId,
             level: rating,
         };
 

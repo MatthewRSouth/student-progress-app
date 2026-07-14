@@ -31,14 +31,31 @@ function StudentRow({
                 const cellColor = rating ? LEVELS[rating.level].color : stripe;
                 return (
                     <div
-                        className={` flex flex-col p-2 items-center justify-center cursor-pointer hover:bg-[#D8CFBE] ${cellColor}`}
+                        className={` flex flex-col p-2 items-center justify-center cursor-pointer ${stripe} hover:bg-[#D8CFBE]`}
                         onClick={() => onActiveCell(student.id, category.id)}
                         key={`${student.id}-${category.id}`}
                     >
-                        {rating ? rating.level : '+'}
-                        <span className="text-[8px]">
-                            {rating ? LEVELS[rating.level].label : ''}
-                        </span>
+                        {rating ? (
+                            <div className="w-full">
+                                <div
+                                    className={`${cellColor} rounded-md m-2 `}
+                                    style={{
+                                        width: `${(rating.level / 4) * 100}%`,
+                                    }}
+                                >
+                                    {rating.level}
+                                </div>
+
+                                <span className="text-[8px]">
+                                    {rating ? LEVELS[rating.level].label : ''}
+                                </span>
+                            </div>
+                        ) : (
+                            <div className="border border-dashed p-1 rounded-md text-[10px]">
+                                <span>+</span>
+                                <span>Add score</span>
+                            </div>
+                        )}
                     </div>
                 );
             })}

@@ -20,7 +20,7 @@ function useRateStudent(refetchRatings: () => void, onSuccess: () => void) {
         e: React.MouseEvent<HTMLButtonElement>,
         activeCell: { studentId: number; categoryId: number } | null,
         termId: number | null,
-        userId: string | null,
+        userId: string,
     ) {
         //This handler creates the payload and inserts the payload into supabase.
         e.preventDefault();

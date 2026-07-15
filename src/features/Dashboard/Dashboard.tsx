@@ -105,8 +105,13 @@ function Dashboard({ userId }: DashboardProps) {
                         </option>
                     ))}
                 </select>
-                <div className="flex justify-center items-center bg-white w-auto rounded-lg mt-4 p-2">
-                    <div className="grid grid-cols-[200px_repeat(4,112px)] text-center">
+                <div className="flex justify-start items-center bg-white w-[90vw] rounded-lg mt-4 p-2">
+                    <div
+                        className="grid text-center w-full"
+                        style={{
+                            gridTemplateColumns: `200px repeat(${categories.length}, minmax(0,1fr))`,
+                        }}
+                    >
                         <DashboardHeaders
                             categories={categories}
                         ></DashboardHeaders>

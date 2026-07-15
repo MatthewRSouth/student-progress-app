@@ -36,20 +36,27 @@ function StudentRow({
                         key={`${student.id}-${category.id}`}
                     >
                         {rating ? (
-                            <div className="w-full">
-                                <div
-                                    className={`${cellColor} rounded-md m-2 `}
-                                    style={{
-                                        width: `${(rating.level / 4) * 100}%`,
-                                    }}
-                                >
-                                    {rating.level}
+                            //track
+                            <>
+                                <div className="w-full h-full overflow-hidden text-center items-center justify-center bg-[#E8E0D0] rounded-lg">
+                                    {/* fill */}
+                                    <div
+                                        className={`${cellColor} rounded-lg text-start`}
+                                        style={{
+                                            width: `${(rating.level / 4) * 100}%`,
+                                        }}
+                                    >
+                                        {
+                                            <span className="mx-1.5">
+                                                {rating.level}
+                                            </span>
+                                        }
+                                    </div>
                                 </div>
-
                                 <span className="text-[8px]">
                                     {rating ? LEVELS[rating.level].label : ''}
                                 </span>
-                            </div>
+                            </>
                         ) : (
                             <div className="border border-dashed p-1 rounded-md text-[10px]">
                                 <span>+</span>

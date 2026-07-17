@@ -41,13 +41,21 @@ function StudentRow({
     };
 
     const avg = getAverage(studentRatings);
+
+    const getRandAvatarColor = (id: number) => {
+        const avatarColors = ['#F8E1DB', '#F8ECD4', '#E2EFE2', '#DEEAF3'];
+
+        return avatarColors[id % avatarColors.length];
+    };
+
     return (
         <>
             <div
                 className={`flex justify-start items-center cursor-pointer hover:bg-[#D8CFBE] ${rowIndex % 2 === 0 ? 'bg-[#FAF6EE]' : ''}`}
             >
                 <div
-                    className={`rounded-full bg-amber-200 w-10 h-10 flex items-center justify-center text-white shrink-0 `}
+                    className={`rounded-full  w-10 h-10 flex items-center justify-center text-white shrink-0 `}
+                    style={{ backgroundColor: getRandAvatarColor(student.id) }}
                 >
                     {getInitials(student.name)}
                 </div>

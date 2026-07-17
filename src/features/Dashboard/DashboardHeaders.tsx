@@ -10,7 +10,9 @@ function DashboardHeaders({ categories }: DashboardHeadersProps) {
         <>
             <div>Student Name</div>
             {categories.map((category) => (
-                <div key={category.id}>{category.criteria}</div>
+                <div className="whitespace-nowrap" key={category.id}>
+                    {category.criteria}
+                </div>
             ))}
         </>
     );

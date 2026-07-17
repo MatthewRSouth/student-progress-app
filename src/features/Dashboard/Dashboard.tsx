@@ -9,6 +9,7 @@ import useRateStudent from '../../hooks/useRateStudent';
 import DashboardHeaders from './DashboardHeaders';
 import StudentList from './StudentList';
 import ScoreModal from '../ScoreModal/ScoreModal';
+import Tabs from './Tabs';
 
 //service imports
 import supabase from '../../services/supabase';
@@ -19,6 +20,7 @@ import {
     type Category,
     type Student,
     type Term,
+    type Class,
 } from '../../types';
 type DashboardProps = {
     userId: string;
@@ -28,6 +30,8 @@ function Dashboard({ userId }: DashboardProps) {
     //State vars
     const [selectedTermId, setSelectedTermId] = useState<number | null>(null);
 
+    const [selectedClassId, setSelectedClassId] = useState<number | null>(1);
+
     const [activeCell, setActiveCell] = useState<{
         studentId: number;
         categoryId: number;
@@ -36,15 +40,19 @@ function Dashboard({ userId }: DashboardProps) {
     //Supabase Fetches
     const { data: categories, error: categoriesError } = useFetch<Category>(
         'categories',
-        'id, criteria',
+        'id, criteria, class_id',
     );
     const { data: students, error: studentsError } = useFetch<Student>(
         'students',
-        'id, name',
+        'id, name, class_id',
     );
     const { data: terms, error: termsError } = useFetch<Term>(
         'terms',
         'id, term',
+    );
+    const { data: classes, error: classesError } = useFetch<Class>(
+        'classes',
+        'id,name',
     );
 
     const {
@@ -57,6 +65,9 @@ function Dashboard({ userId }: DashboardProps) {
     );
     const onSuccess = () => {
         setActiveCell(null);
+    };
+    const onSelectClass = (id: number) => {
+        setSelectedClassId(id);
     };
     const { setRating, status, error, handleRating } = useRateStudent(
         refetchRatings,
@@ -79,10 +90,22 @@ function Dashboard({ userId }: DashboardProps) {
         await supabase.auth.signOut();
     };
 
-    if (categoriesError || studentsError || ratingsError || termsError) {
+    if (
+        categoriesError ||
+        studentsError ||
+        ratingsError ||
+        termsError ||
+        classesError
+    ) {
         return <p>There was an error loading the dashboard.</p>;
     }
 
+    const visibleStudents = students.filter(
+        (s) => s.class_id === selectedClassId,
+    );
+    const visibleCategories = categories.filter(
+        (c) => c.class_id === selectedClassId,
+    );
     return (
         <>
             <div className="flex w-full justify-end ">
@@ -93,6 +116,12 @@ function Dashboard({ userId }: DashboardProps) {
                     logout
                 </button>
             </div>
+            {/* Navigation */}
+            <Tabs
+                selectedClassId={selectedClassId}
+                classes={classes}
+                onSelectClass={onSelectClass}
+            ></Tabs>
             <div className="flex flex-col justify-center items-center">
                 <select
                     value={selectedTermId ?? ''}
@@ -109,15 +138,15 @@ function Dashboard({ userId }: DashboardProps) {
                     <div
                         className="grid text-center w-full"
                         style={{
-                            gridTemplateColumns: `200px repeat(${categories.length}, minmax(0,1fr))`,
+                            gridTemplateColumns: `200px repeat(${visibleCategories.length}, minmax(0,1fr))`,
                         }}
                     >
                         <DashboardHeaders
-                            categories={categories}
+                            categories={visibleCategories}
                         ></DashboardHeaders>
                         <StudentList
-                            students={students}
-                            categories={categories}
+                            students={visibleStudents}
+                            categories={visibleCategories}
                             ratingsLookup={ratingLookup}
                             activeCell={activeCell}
                             onActiveCell={(studentId, categoryId) =>

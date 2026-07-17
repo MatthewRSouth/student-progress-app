@@ -27,16 +27,39 @@ function StudentRow({
         const sum = ratings.reduce((total, r) => total + r.level, 0);
         return sum / ratings.length;
     };
+
+    const getInitials = (name: string) => {
+        //get name, get the first letter, slice at space, get the first letter of the last name and join them.
+
+        return name
+            .trim()
+            .split(/\s+/)
+            .map((word) => word[0])
+            .slice(0, 2)
+            .join('')
+            .toUpperCase();
+    };
+
     const avg = getAverage(studentRatings);
     return (
         <>
             <div
-                className={`flex flex-col items-center justify-center cursor-pointer hover:bg-[#D8CFBE] ${rowIndex % 2 === 0 ? 'bg-[#FAF6EE]' : ''}`}
+                className={`flex justify-start items-center cursor-pointer hover:bg-[#D8CFBE] ${rowIndex % 2 === 0 ? 'bg-[#FAF6EE]' : ''}`}
             >
-                <span>{student.name}</span>
-                <span className="text-[8px]">
-                    {avg === null ? 'No scores yet' : `avg. ${avg.toFixed(1)}`}
-                </span>
+                <div
+                    className={`rounded-full bg-amber-200 w-10 h-10 flex items-center justify-center text-white shrink-0 `}
+                >
+                    {getInitials(student.name)}
+                </div>
+
+                <div className="flex flex-col mx-5">
+                    <span>{student.name}</span>
+                    <span className="text-[8px]">
+                        {avg === null
+                            ? 'No scores yet'
+                            : `avg. ${avg.toFixed(1)}`}
+                    </span>
+                </div>
             </div>
             {categories.map((category) => {
                 const rating = ratingsLookup[`${student.id}-${category.id}`];
@@ -45,7 +68,7 @@ function StudentRow({
 
                 return (
                     <div
-                        className={` flex flex-col p-2 items-center justify-center cursor-pointer ${stripe} hover:bg-[#D8CFBE]`}
+                        className={` flex flex-col p-2 items-center justify-start cursor-pointer ${stripe} hover:bg-[#D8CFBE]`}
                         onClick={() => onActiveCell(student.id, category.id)}
                         key={`${student.id}-${category.id}`}
                     >

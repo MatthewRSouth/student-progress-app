@@ -125,7 +125,7 @@ function Dashboard({ userId }: DashboardProps) {
                     setSelectedTermId={setSelectedTermId}
                     terms={terms}
                 />
-                <div className="flex justify-start items-center bg-white w-[90vw] rounded-lg mt-4 p-2">
+                <div className="flex justify-start items-center bg-white w-[95vw] rounded-lg mt-4 p-2">
                     <div
                         className="grid text-center w-full"
                         style={{

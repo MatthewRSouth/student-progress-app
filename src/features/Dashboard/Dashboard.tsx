@@ -11,6 +11,8 @@ import StudentList from './StudentList';
 import ScoreModal from '../ScoreModal/ScoreModal';
 import Tabs from './Tabs';
 
+import PageHeader from '../../ui/PageHeader';
+
 //service imports
 import supabase from '../../services/supabase';
 
@@ -22,6 +24,7 @@ import {
     type Term,
     type Class,
 } from '../../types';
+import Terms from './Terms';
 type DashboardProps = {
     userId: string;
 };
@@ -99,7 +102,7 @@ function Dashboard({ userId }: DashboardProps) {
     ) {
         return <p>There was an error loading the dashboard.</p>;
     }
-
+    // Students and Categories Filter
     const visibleStudents = students.filter(
         (s) => s.class_id === selectedClassId,
     );
@@ -108,14 +111,8 @@ function Dashboard({ userId }: DashboardProps) {
     );
     return (
         <>
-            <div className="flex w-full justify-end ">
-                <button
-                    className="mr-5 my-5 p-3 bg-black text-white text-center rounded-lg cursor-pointer hover:bg-gray-500"
-                    onClick={handleSignOut}
-                >
-                    logout
-                </button>
-            </div>
+            <PageHeader handleSignOut={handleSignOut} />
+
             {/* Navigation */}
             <Tabs
                 selectedClassId={selectedClassId}
@@ -123,17 +120,11 @@ function Dashboard({ userId }: DashboardProps) {
                 onSelectClass={onSelectClass}
             ></Tabs>
             <div className="flex flex-col justify-center items-center">
-                <select
-                    value={selectedTermId ?? ''}
-                    onChange={(e) => setSelectedTermId(Number(e.target.value))}
-                >
-                    <option value="">Select a term</option>
-                    {terms.map((term) => (
-                        <option key={term.id} value={term.id}>
-                            {term.term}
-                        </option>
-                    ))}
-                </select>
+                <Terms
+                    selectedTermId={selectedTermId}
+                    setSelectedTermId={setSelectedTermId}
+                    terms={terms}
+                />
                 <div className="flex justify-start items-center bg-white w-[90vw] rounded-lg mt-4 p-2">
                     <div
                         className="grid text-center w-full"

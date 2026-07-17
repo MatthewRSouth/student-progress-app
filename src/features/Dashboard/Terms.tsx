@@ -11,7 +11,7 @@ function Terms({ selectedTermId, setSelectedTermId, terms }: TermProps) {
             value={selectedTermId ?? ''}
             onChange={(e) => setSelectedTermId(Number(e.target.value))}
         >
-            <option value="">Select a term</option>
+            <option value="">Select a Term</option>
             {terms.map((term) => (
                 <option key={term.id} value={term.id}>
                     {term.term}

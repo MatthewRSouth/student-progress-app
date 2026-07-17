@@ -105,7 +105,7 @@ function StudentRow({
                         ) : (
                             <div className="border border-dashed p-1 rounded-md text-[10px]">
                                 <span>+</span>
-                                <span>Add score</span>
+                                <span> Add score</span>
                             </div>
                         )}
                     </div>

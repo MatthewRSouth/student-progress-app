@@ -4,7 +4,7 @@ An app that allows teachers to track student progress through time. The app help
 
 🔗 **Live demo:** https://student-progress-app-eight.vercel.app/
 
-![Dashboard](./assets/student-progress-app.png)
+![Dashboard](.src/assets/student-progress-app.png)
 
 
 

@@ -34,7 +34,6 @@ Custom hooks ( `useFetch<T>`, `useRateStudent`) separating data/logic from UI.
 
 React, TypeScript, Vite, Tailwind CSS, Supabase, deployed on Vercel.
 
-## Local setup 
 ## Local setup
 
 ```bash
@@ -63,7 +62,6 @@ AI summaries of the students progress
 Student pages where they can see graphs of their progress over time
 An improved modal window for teachers to add scores 
 
-## What I learned
 ## What I learned
 
 **Plan before coding.** Planning what you're going to do before any coding is the most valuable use of time. I'd plan the project and think it through, but in individual coding sessions I'd often sit down and start with a mediocre plan. With this app I planned every session — mapping data, thinking the UI through, and most importantly really planning the auth.

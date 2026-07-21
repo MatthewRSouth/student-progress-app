@@ -56,11 +56,11 @@ npm run dev
 
 
 ## Planned for v2
-Better UX/UI for auth and sign-in
-Admins to add students and criteria by themselves
-AI summaries of the students progress
-Student pages where they can see graphs of their progress over time
-An improved modal window for teachers to add scores 
+-Better UX/UI for auth and sign-in
+-Admins to add students and criteria by themselves
+-AI summaries of the students progress
+-Student pages where they can see graphs of their progress over time
+-An improved modal window for teachers to add scores 
 
 ## What I learned
 

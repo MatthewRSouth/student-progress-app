@@ -17,7 +17,7 @@ interface ModalPropTypes {
     category: Category;
     studentClass: Cls;
     currentRating?: 1 | 2 | 3 | 4;
-    rating?: 1 | 2 | 3 | 4;
+    rating?: number;
 }
 
 function ScoreModal({

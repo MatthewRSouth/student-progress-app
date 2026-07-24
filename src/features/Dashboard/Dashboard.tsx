@@ -22,7 +22,7 @@ import {
     type Category,
     type Student,
     type Term,
-    type Class,
+    type Cls,
 } from '../../types';
 import Terms from './Terms';
 type DashboardProps = {
@@ -53,7 +53,7 @@ function Dashboard({ userId }: DashboardProps) {
         'terms',
         'id, term',
     );
-    const { data: classes, error: classesError } = useFetch<Class>(
+    const { data: classes, error: classesError } = useFetch<Cls>(
         'classes',
         'id,name',
     );
@@ -109,6 +109,13 @@ function Dashboard({ userId }: DashboardProps) {
     const visibleCategories = categories.filter(
         (c) => c.class_id === selectedClassId,
     );
+
+    const activeStudent = students.find((s) => s.id === activeCell?.studentId);
+    const activeCategory = categories.find(
+        (c) => c.id === activeCell?.categoryId,
+    );
+    const activeClass = classes.find((cls) => cls.id === selectedClassId);
+
     return (
         <>
             <PageHeader handleSignOut={handleSignOut} />
@@ -119,6 +126,7 @@ function Dashboard({ userId }: DashboardProps) {
                 classes={classes}
                 onSelectClass={onSelectClass}
             ></Tabs>
+
             <div className="flex flex-col justify-center items-center">
                 <Terms
                     selectedTermId={selectedTermId}
@@ -139,26 +147,32 @@ function Dashboard({ userId }: DashboardProps) {
                             students={visibleStudents}
                             categories={visibleCategories}
                             ratingsLookup={ratingLookup}
-                            activeCell={activeCell}
                             onActiveCell={(studentId, categoryId) =>
                                 setActiveCell({ studentId, categoryId })
                             }
                         ></StudentList>
-                        {activeCell && (
-                            <ScoreModal
-                                onSetRating={setRating}
-                                onHandleRating={(e) =>
-                                    handleRating(
-                                        e,
-                                        activeCell,
-                                        selectedTermId,
-                                        userId,
-                                    )
-                                }
-                                status={status}
-                                errorMessage={error}
-                            ></ScoreModal>
-                        )}
+                        {activeCell &&
+                            activeStudent &&
+                            activeCategory &&
+                            activeClass && (
+                                <ScoreModal
+                                    onClose={() => setActiveCell(null)}
+                                    onSetRating={setRating}
+                                    onHandleRating={(e) =>
+                                        handleRating(
+                                            e,
+                                            activeCell,
+                                            selectedTermId,
+                                            userId,
+                                        )
+                                    }
+                                    student={activeStudent}
+                                    category={activeCategory}
+                                    studentClass={activeClass}
+                                    status={status}
+                                    errorMessage={error}
+                                ></ScoreModal>
+                            )}
                     </div>
                 </div>
             </div>

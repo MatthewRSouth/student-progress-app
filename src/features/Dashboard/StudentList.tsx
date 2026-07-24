@@ -6,10 +6,6 @@ type StudentListProps = {
     students: Student[];
     categories: Category[];
     ratingsLookup: Record<string, Rating>;
-    activeCell: {
-        studentId: number;
-        categoryId: number;
-    } | null;
     onActiveCell: (studentId: number, categoryId: number) => void;
 };
 

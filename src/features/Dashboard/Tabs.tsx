@@ -1,7 +1,7 @@
-import { type Class } from '../../types';
+import { type Cls } from '../../types';
 type TabProps = {
     selectedClassId: number | null;
-    classes: Class[];
+    classes: Cls[];
     onSelectClass: (classId: number) => void;
 };
 

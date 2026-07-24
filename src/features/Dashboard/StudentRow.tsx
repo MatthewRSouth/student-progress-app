@@ -77,7 +77,9 @@ function StudentRow({
                 return (
                     <div
                         className={` flex flex-col p-2 items-center justify-start cursor-pointer ${stripe} hover:bg-[#D8CFBE]`}
-                        onClick={() => onActiveCell(student.id, category.id)}
+                        onClick={() => {
+                            onActiveCell(student.id, category.id);
+                        }}
                         key={`${student.id}-${category.id}`}
                     >
                         {rating ? (

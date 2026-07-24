@@ -15,8 +15,14 @@ export const LEVELS: Levels = {
 };
 
 export const MODALLEVELS: Levels = {
-    1: { color: 'bg-[#F8E1DB]', label: 'Needs improvement' },
-    2: { color: 'bg-[#F8ECD4]', label: 'Getting there' },
+    1: {
+        color: 'bg-[#F8E1DB]',
+        label: 'Needs improvement',
+    },
+    2: {
+        color: 'bg-[#F8ECD4]',
+        label: 'Getting there',
+    },
     3: { color: 'bg-[#E2EFE2]', label: 'Doing well' },
     4: { color: 'bg-[#DEEAF3]', label: 'Excellent' },
 };

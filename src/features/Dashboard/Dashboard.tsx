@@ -10,6 +10,7 @@ import DashboardHeaders from './DashboardHeaders';
 import StudentList from './StudentList';
 import ScoreModal from '../ScoreModal/ScoreModal';
 import Tabs from './Tabs';
+import AddStudent from '../../ui/AddStudent';
 
 import PageHeader from '../../ui/PageHeader';
 
@@ -72,7 +73,7 @@ function Dashboard({ userId }: DashboardProps) {
     const onSelectClass = (id: number) => {
         setSelectedClassId(id);
     };
-    const { setRating, status, error, handleRating } = useRateStudent(
+    const { setRating, rating, status, error, handleRating } = useRateStudent(
         refetchRatings,
         onSuccess,
     );
@@ -115,7 +116,9 @@ function Dashboard({ userId }: DashboardProps) {
         (c) => c.id === activeCell?.categoryId,
     );
     const activeClass = classes.find((cls) => cls.id === selectedClassId);
-
+    const currentRating = activeCell
+        ? ratingLookup[`${activeCell.studentId}-${activeCell.categoryId}`]
+        : undefined;
     return (
         <>
             <PageHeader handleSignOut={handleSignOut} />
@@ -126,7 +129,7 @@ function Dashboard({ userId }: DashboardProps) {
                 classes={classes}
                 onSelectClass={onSelectClass}
             ></Tabs>
-
+            <AddStudent></AddStudent>
             <div className="flex flex-col justify-center items-center">
                 <Terms
                     selectedTermId={selectedTermId}
@@ -171,6 +174,8 @@ function Dashboard({ userId }: DashboardProps) {
                                     studentClass={activeClass}
                                     status={status}
                                     errorMessage={error}
+                                    currentRating={currentRating?.level}
+                                    rating={rating}
                                 ></ScoreModal>
                             )}
                     </div>

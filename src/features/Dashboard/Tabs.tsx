@@ -1,7 +1,7 @@
-import { type Class } from '../../types';
+import { type Cls } from '../../types';
 type TabProps = {
     selectedClassId: number | null;
-    classes: Class[];
+    classes: Cls[];
     onSelectClass: (classId: number) => void;
 };
 
@@ -14,7 +14,7 @@ function Tabs({ selectedClassId, onSelectClass, classes }: TabProps) {
                     onClick={() => onSelectClass(c.id)}
                     className={`px-4 py-2 rounded-md cursor-pointer ${
                         selectedClassId === c.id
-                            ? 'bg-teal-600 text-white'
+                            ? 'bg-teal-700 text-white'
                             : 'hover:bg-teal-800 hover:text-white'
                     }`}
                 >

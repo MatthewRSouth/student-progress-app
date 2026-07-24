@@ -8,4 +8,4 @@ export type Rating = {
 };
 export type Term = { id: number; term: string };
 
-export type Class = { id: number; name: string };
+export type Cls = { id: number; name: string };

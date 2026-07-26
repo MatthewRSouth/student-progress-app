@@ -1,24 +1,19 @@
 //React Hooks
-import { useMemo, useState } from 'react';
-
+import { useState } from 'react';
 //Custom Hooks
 import useFetch from '../../hooks/useFetch';
 import useRateStudent from '../../hooks/useRateStudent';
-
 //Component Imports
 import DashboardHeaders from './DashboardHeaders';
 import StudentList from './StudentList';
 import ScoreModal from '../ScoreModal/ScoreModal';
-import Tabs from './Tabs';
-import AddStudent from '../../ui/AddStudent';
-import AddCriteriaBtn from '../../ui/AddCriteriaBtn';
+import Navigation from '../Navigation/Navigation';
+
 import AddStudentModal from '../AddStudentModal/AddStudentModal';
 import AddCriteriaModal from '../AddCriteriaModal/AddCriteriaModal';
-import PageHeader from '../../ui/PageHeader';
 
 //service imports
 import supabase from '../../services/supabase';
-
 //types
 import {
     type Rating,
@@ -28,6 +23,7 @@ import {
     type Cls,
 } from '../../types';
 import Terms from './Terms';
+import useRatingLookup from '../../hooks/useRatingLookup';
 
 type DashboardProps = {
     userId: string;
@@ -38,9 +34,7 @@ function Dashboard({ userId }: DashboardProps) {
     const [addStudentModal, setAddStudentModal] = useState(false);
     const [addCriteriaModal, setAddCriteriaModal] = useState(false);
     const [selectedTermId, setSelectedTermId] = useState<number | null>(null);
-
     const [selectedClassId, setSelectedClassId] = useState<number>(1);
-
     const [activeCell, setActiveCell] = useState<{
         studentId: number;
         categoryId: number;
@@ -74,6 +68,8 @@ function Dashboard({ userId }: DashboardProps) {
         'ratings',
         'student_id, category_id, level, created_at ',
     );
+
+    //Helpers
     const onSuccess = () => {
         setActiveCell(null);
     };
@@ -94,16 +90,7 @@ function Dashboard({ userId }: DashboardProps) {
     );
 
     //Memo to rate look up
-    const ratingLookup = useMemo(() => {
-        const result: Record<string, Rating> = {};
-        for (const rating of ratings) {
-            const key = `${rating.student_id}-${rating.category_id}`;
-            if (!result[key] || rating.created_at > result[key].created_at) {
-                result[key] = rating;
-            }
-        }
-        return result;
-    }, [ratings]);
+    const ratingLookup = useRatingLookup(ratings);
 
     const handleSignOut = async () => {
         await supabase.auth.signOut();
@@ -127,6 +114,7 @@ function Dashboard({ userId }: DashboardProps) {
         (c) => c.class_id === selectedClassId,
     );
 
+    //Current and Active Variables
     const activeStudent = students.find((s) => s.id === activeCell?.studentId);
     const activeCategory = categories.find(
         (c) => c.id === activeCell?.categoryId,
@@ -137,28 +125,21 @@ function Dashboard({ userId }: DashboardProps) {
         : undefined;
     return (
         <>
-            <PageHeader handleSignOut={handleSignOut} />
-
-            {/* Navigation */}
-            <Tabs
+            <Navigation
+                handleSignOut={handleSignOut}
                 selectedClassId={selectedClassId}
                 classes={classes}
                 onSelectClass={onSelectClass}
-            ></Tabs>
-            <div className="flex justify-end mr-10">
-                <AddCriteriaBtn
-                    setAddCriteriaModal={setAddCriteriaModal}
-                ></AddCriteriaBtn>
-                <AddStudent
-                    setAddStudentModal={setAddStudentModal}
-                ></AddStudent>
-            </div>
+                setAddCriteriaModal={setAddCriteriaModal}
+                setAddStudentModal={setAddStudentModal}
+            ></Navigation>
             <div className="flex flex-col justify-center items-center">
                 <Terms
                     selectedTermId={selectedTermId}
                     setSelectedTermId={setSelectedTermId}
                     terms={terms}
                 />
+                {/* Dashboard */}
                 <div className="flex justify-start items-center bg-white w-[95vw] rounded-lg mt-4 p-2">
                     <div
                         className="grid text-center w-full"

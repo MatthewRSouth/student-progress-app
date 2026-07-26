@@ -11,7 +11,9 @@ import StudentList from './StudentList';
 import ScoreModal from '../ScoreModal/ScoreModal';
 import Tabs from './Tabs';
 import AddStudent from '../../ui/AddStudent';
-
+import AddCriteriaBtn from '../../ui/AddCriteriaBtn';
+import AddStudentModal from '../AddStudentModal/AddStudentModal';
+import AddCriteriaModal from '../AddCriteriaModal/AddCriteriaModal';
 import PageHeader from '../../ui/PageHeader';
 
 //service imports
@@ -26,15 +28,18 @@ import {
     type Cls,
 } from '../../types';
 import Terms from './Terms';
+
 type DashboardProps = {
     userId: string;
 };
 
 function Dashboard({ userId }: DashboardProps) {
     //State vars
+    const [addStudentModal, setAddStudentModal] = useState(false);
+    const [addCriteriaModal, setAddCriteriaModal] = useState(false);
     const [selectedTermId, setSelectedTermId] = useState<number | null>(null);
 
-    const [selectedClassId, setSelectedClassId] = useState<number | null>(1);
+    const [selectedClassId, setSelectedClassId] = useState<number>(1);
 
     const [activeCell, setActiveCell] = useState<{
         studentId: number;
@@ -42,14 +47,16 @@ function Dashboard({ userId }: DashboardProps) {
     } | null>(null);
 
     //Supabase Fetches
-    const { data: categories, error: categoriesError } = useFetch<Category>(
-        'categories',
-        'id, criteria, class_id',
-    );
-    const { data: students, error: studentsError } = useFetch<Student>(
-        'students',
-        'id, name, class_id',
-    );
+    const {
+        data: categories,
+        error: categoriesError,
+        refetch: refetchCriteria,
+    } = useFetch<Category>('categories', 'id, criteria, class_id');
+    const {
+        data: students,
+        error: studentsError,
+        refetch: refetchStudents,
+    } = useFetch<Student>('students', 'id, name, class_id');
     const { data: terms, error: termsError } = useFetch<Term>(
         'terms',
         'id, term',
@@ -73,6 +80,14 @@ function Dashboard({ userId }: DashboardProps) {
     const onSelectClass = (id: number) => {
         setSelectedClassId(id);
     };
+    const onAddStudentSucess = () => {
+        setAddStudentModal(false);
+    };
+    const onAddCriteriaSucess = () => {
+        setAddCriteriaModal(false);
+    };
+
+    //Custom Hook Uses
     const { setRating, rating, status, error, handleRating } = useRateStudent(
         refetchRatings,
         onSuccess,
@@ -103,6 +118,7 @@ function Dashboard({ userId }: DashboardProps) {
     ) {
         return <p>There was an error loading the dashboard.</p>;
     }
+
     // Students and Categories Filter
     const visibleStudents = students.filter(
         (s) => s.class_id === selectedClassId,
@@ -129,7 +145,14 @@ function Dashboard({ userId }: DashboardProps) {
                 classes={classes}
                 onSelectClass={onSelectClass}
             ></Tabs>
-            <AddStudent></AddStudent>
+            <div className="flex justify-end mr-10">
+                <AddCriteriaBtn
+                    setAddCriteriaModal={setAddCriteriaModal}
+                ></AddCriteriaBtn>
+                <AddStudent
+                    setAddStudentModal={setAddStudentModal}
+                ></AddStudent>
+            </div>
             <div className="flex flex-col justify-center items-center">
                 <Terms
                     selectedTermId={selectedTermId}
@@ -178,6 +201,22 @@ function Dashboard({ userId }: DashboardProps) {
                                     rating={rating}
                                 ></ScoreModal>
                             )}
+                        {addStudentModal && (
+                            <AddStudentModal
+                                refetchStudents={refetchStudents}
+                                onAddStudentSuccess={onAddStudentSucess}
+                                selectedClassId={selectedClassId}
+                                onClose={() => setAddStudentModal(false)}
+                            ></AddStudentModal>
+                        )}
+                        {addCriteriaModal && (
+                            <AddCriteriaModal
+                                refetchCriteria={refetchCriteria}
+                                onAddCriteriaSuccess={onAddCriteriaSucess}
+                                selectedClassId={selectedClassId}
+                                onClose={() => setAddCriteriaModal(false)}
+                            ></AddCriteriaModal>
+                        )}
                     </div>
                 </div>
             </div>

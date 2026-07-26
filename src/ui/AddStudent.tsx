@@ -1,10 +1,15 @@
-function AddStudent() {
+type AddStudentProps = {
+    setAddStudentModal: (bool: boolean) => void;
+};
+
+function AddStudent({ setAddStudentModal }: AddStudentProps) {
     return (
-        <div className="flex justify-end mx-10">
-            <button className="bg-teal-700 text-white p-3 rounded-lg text-center">
-                + Add Student
-            </button>
-        </div>
+        <button
+            onClick={() => setAddStudentModal(true)}
+            className="bg-teal-700 text-white p-3 rounded-lg text-center hover:cursor-pointer hover:bg-teal-800 ml-4"
+        >
+            + Add Student
+        </button>
     );
 }
 

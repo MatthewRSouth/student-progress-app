@@ -45,15 +45,15 @@ function Dashboard({ userId }: DashboardProps) {
         data: categories,
         error: categoriesError,
         refetch: refetchCriteria,
-    } = useFetch<Category>('categories', 'id, criteria, class_id');
+    } = useFetch<Category>('categories', 'id, criteria, class_id, is_active');
     const {
         data: students,
         error: studentsError,
         refetch: refetchStudents,
-    } = useFetch<Student>('students', 'id, name, class_id');
+    } = useFetch<Student>('students', 'id, name, class_id,is_active');
     const { data: terms, error: termsError } = useFetch<Term>(
         'terms',
-        'id, term',
+        'id, term, created_at',
     );
     const { data: classes, error: classesError } = useFetch<Cls>(
         'classes',
@@ -66,7 +66,7 @@ function Dashboard({ userId }: DashboardProps) {
         refetch: refetchRatings,
     } = useFetch<Rating>(
         'ratings',
-        'student_id, category_id, level, created_at ',
+        'student_id, category_id, level, created_at, term_id',
     );
 
     //Helpers
@@ -108,20 +108,26 @@ function Dashboard({ userId }: DashboardProps) {
 
     // Students and Categories Filter
     const visibleStudents = students.filter(
-        (s) => s.class_id === selectedClassId,
+        (s) => s.class_id === selectedClassId && s.is_active,
     );
     const visibleCategories = categories.filter(
-        (c) => c.class_id === selectedClassId,
+        (c) => c.class_id === selectedClassId && c.is_active,
     );
 
     //Current and Active Variables
+    const mostRecentTerms = [...terms].sort((a: Term, b: Term) =>
+        b.created_at.localeCompare(a.created_at),
+    );
+    const effectiveTermId = selectedTermId ?? mostRecentTerms[0]?.id;
     const activeStudent = students.find((s) => s.id === activeCell?.studentId);
     const activeCategory = categories.find(
         (c) => c.id === activeCell?.categoryId,
     );
     const activeClass = classes.find((cls) => cls.id === selectedClassId);
     const currentRating = activeCell
-        ? ratingLookup[`${activeCell.studentId}-${activeCell.categoryId}`]
+        ? ratingLookup[
+              `${activeCell.studentId}-${activeCell.categoryId}-${effectiveTermId}`
+          ]
         : undefined;
     return (
         <>
@@ -135,71 +141,82 @@ function Dashboard({ userId }: DashboardProps) {
             ></Navigation>
             <div className="flex flex-col justify-center items-center">
                 <Terms
+                    effectiveTermId={effectiveTermId}
                     selectedTermId={selectedTermId}
                     setSelectedTermId={setSelectedTermId}
                     terms={terms}
                 />
                 {/* Dashboard */}
-                <div className="flex justify-start items-center bg-white w-[95vw] rounded-lg mt-4 p-2">
-                    <div
-                        className="grid text-center w-full"
-                        style={{
-                            gridTemplateColumns: `200px repeat(${visibleCategories.length}, minmax(0,1fr))`,
-                        }}
-                    >
-                        <DashboardHeaders
-                            categories={visibleCategories}
-                        ></DashboardHeaders>
-                        <StudentList
-                            students={visibleStudents}
-                            categories={visibleCategories}
-                            ratingsLookup={ratingLookup}
-                            onActiveCell={(studentId, categoryId) =>
-                                setActiveCell({ studentId, categoryId })
-                            }
-                        ></StudentList>
-                        {activeCell &&
-                            activeStudent &&
-                            activeCategory &&
-                            activeClass && (
-                                <ScoreModal
-                                    onClose={() => setActiveCell(null)}
-                                    onSetRating={setRating}
-                                    onHandleRating={(e) =>
-                                        handleRating(
-                                            e,
-                                            activeCell,
-                                            selectedTermId,
-                                            userId,
-                                        )
-                                    }
-                                    student={activeStudent}
-                                    category={activeCategory}
-                                    studentClass={activeClass}
-                                    status={status}
-                                    errorMessage={error}
-                                    currentRating={currentRating?.level}
-                                    rating={rating}
-                                ></ScoreModal>
-                            )}
-                        {addStudentModal && (
-                            <AddStudentModal
-                                refetchStudents={refetchStudents}
-                                onAddStudentSuccess={onAddStudentSucess}
-                                selectedClassId={selectedClassId}
-                                onClose={() => setAddStudentModal(false)}
-                            ></AddStudentModal>
-                        )}
-                        {addCriteriaModal && (
-                            <AddCriteriaModal
-                                refetchCriteria={refetchCriteria}
-                                onAddCriteriaSuccess={onAddCriteriaSucess}
-                                selectedClassId={selectedClassId}
-                                onClose={() => setAddCriteriaModal(false)}
-                            ></AddCriteriaModal>
-                        )}
+                {visibleCategories.length === 0 &&
+                visibleStudents.length === 0 ? (
+                    <div className="justify-center items-center my-5 text-center">
+                        <p className="font-bold text-xl">
+                            Add Criteria or Add students to get started
+                        </p>
                     </div>
-                </div>
+                ) : (
+                    <div className="flex justify-start items-center bg-white w-[95vw] rounded-lg mt-4 p-2">
+                        <div
+                            className="grid text-center w-full"
+                            style={{
+                                gridTemplateColumns: `200px repeat(${visibleCategories.length}, minmax(0,1fr))`,
+                            }}
+                        >
+                            <DashboardHeaders
+                                categories={visibleCategories}
+                            ></DashboardHeaders>
+                            <StudentList
+                                termId={effectiveTermId}
+                                students={visibleStudents}
+                                categories={visibleCategories}
+                                ratingsLookup={ratingLookup}
+                                onActiveCell={(studentId, categoryId) =>
+                                    setActiveCell({ studentId, categoryId })
+                                }
+                            ></StudentList>
+                            {activeCell &&
+                                activeStudent &&
+                                activeCategory &&
+                                activeClass && (
+                                    <ScoreModal
+                                        onClose={() => setActiveCell(null)}
+                                        onSetRating={setRating}
+                                        onHandleRating={(e) =>
+                                            handleRating(
+                                                e,
+                                                activeCell,
+                                                effectiveTermId,
+                                                userId,
+                                            )
+                                        }
+                                        student={activeStudent}
+                                        category={activeCategory}
+                                        studentClass={activeClass}
+                                        status={status}
+                                        errorMessage={error}
+                                        currentRating={currentRating?.level}
+                                        rating={rating}
+                                    ></ScoreModal>
+                                )}
+                        </div>
+                    </div>
+                )}
+                {addStudentModal && (
+                    <AddStudentModal
+                        refetchStudents={refetchStudents}
+                        onAddStudentSuccess={onAddStudentSucess}
+                        selectedClassId={selectedClassId}
+                        onClose={() => setAddStudentModal(false)}
+                    ></AddStudentModal>
+                )}
+                {addCriteriaModal && (
+                    <AddCriteriaModal
+                        refetchCriteria={refetchCriteria}
+                        onAddCriteriaSuccess={onAddCriteriaSucess}
+                        selectedClassId={selectedClassId}
+                        onClose={() => setAddCriteriaModal(false)}
+                    ></AddCriteriaModal>
+                )}
             </div>
         </>
     );

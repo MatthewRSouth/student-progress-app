@@ -1,14 +1,15 @@
 import { type Term } from '../../types';
 type TermProps = {
+    effectiveTermId: number;
     selectedTermId: number | null;
     setSelectedTermId: (termId: number) => void;
     terms: Term[];
 };
 
-function Terms({ selectedTermId, setSelectedTermId, terms }: TermProps) {
+function Terms({ effectiveTermId, setSelectedTermId, terms }: TermProps) {
     return (
         <select
-            value={selectedTermId ?? ''}
+            value={effectiveTermId}
             onChange={(e) => setSelectedTermId(Number(e.target.value))}
         >
             <option value="">Select a Term</option>

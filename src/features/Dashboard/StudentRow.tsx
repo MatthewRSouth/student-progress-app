@@ -9,17 +9,22 @@ type StudentRowProps = {
     ratingsLookup: Record<string, Rating>;
     rowIndex: number;
     onActiveCell: (studentId: number, categoryId: number) => void;
+    termId: number;
 };
 
 function StudentRow({
     student,
     categories,
+    termId,
     ratingsLookup,
     rowIndex,
     onActiveCell,
 }: StudentRowProps) {
     const studentRatings = categories
-        .map((category) => ratingsLookup[`${student.id}-${category.id}`])
+        .map(
+            (category) =>
+                ratingsLookup[`${student.id}-${category.id}-${termId}`],
+        )
         .filter((rating) => rating !== undefined);
 
     const getAverage = (ratings: Rating[]): number | null => {
@@ -54,7 +59,7 @@ function StudentRow({
                 className={`flex justify-start items-center cursor-pointer hover:bg-[#D8CFBE] ${rowIndex % 2 === 0 ? 'bg-[#FAF6EE]' : ''}`}
             >
                 <div
-                    className={`rounded-full  w-10 h-10 flex items-center justify-center text-white shrink-0 `}
+                    className={`rounded-full  w-10 h-10 flex items-center justify-center text-white shrink-0  mx-2 `}
                     style={{ backgroundColor: getRandAvatarColor(student.id) }}
                 >
                     {getInitials(student.name)}
@@ -70,7 +75,8 @@ function StudentRow({
                 </div>
             </div>
             {categories.map((category) => {
-                const rating = ratingsLookup[`${student.id}-${category.id}`];
+                const rating =
+                    ratingsLookup[`${student.id}-${category.id}-${termId}`];
                 const stripe = rowIndex % 2 === 0 ? 'bg-[#FAF6EE]' : '';
                 const cellColor = rating ? LEVELS[rating.level].color : stripe;
 

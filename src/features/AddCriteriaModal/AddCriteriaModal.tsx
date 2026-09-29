@@ -36,6 +36,7 @@ function AddCriteriaModal({
                     onChange={(e) => setCriteria(e.target.value)}
                     value={criteria}
                     className="text-center p-5 m-4 rounded-lg border-4 border-teal-700 w-full"
+                    maxLength={30}
                     placeholder="Criteria"
                     type="text"
                 />

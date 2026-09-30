@@ -1,4 +1,6 @@
+import { Link } from 'react-router';
 import { LEVELS } from '../../constants/levels';
+import { getInitials, getAvatarColor } from '../../utils/studentNames';
 
 //types
 import { type Rating, type Category, type Student } from '../../types';
@@ -33,40 +35,27 @@ function StudentRow({
         return sum / ratings.length;
     };
 
-    const getInitials = (name: string) => {
-        //get name, get the first letter, slice at space, get the first letter of the last name and join them.
-
-        return name
-            .trim()
-            .split(/\s+/)
-            .map((word) => word[0])
-            .slice(0, 2)
-            .join('')
-            .toUpperCase();
-    };
-
     const avg = getAverage(studentRatings);
-
-    const getRandAvatarColor = (id: number) => {
-        const avatarColors = ['#F8E1DB', '#F8ECD4', '#E2EFE2', '#DEEAF3'];
-
-        return avatarColors[id % avatarColors.length];
-    };
 
     return (
         <>
             <div
-                className={`flex justify-start items-center cursor-pointer hover:bg-[#D8CFBE] ${rowIndex % 2 === 0 ? 'bg-[#FAF6EE]' : ''}`}
+                className={`sticky left-0 z-10 pl-2 border-r border-[#F2EDE4] flex justify-start items-center cursor-pointer hover:bg-[#D8CFBE] ${rowIndex % 2 === 0 ? 'bg-[#FAF6EE]' : 'bg-white'}`}
             >
                 <div
                     className={`rounded-full  w-10 h-10 flex items-center justify-center text-white shrink-0  mx-2 `}
-                    style={{ backgroundColor: getRandAvatarColor(student.id) }}
+                    style={{ backgroundColor: getAvatarColor(student.id) }}
                 >
                     {getInitials(student.name)}
                 </div>
 
                 <div className="flex flex-col mx-5">
-                    <span>{student.name}</span>
+                    <Link
+                        to={`/students/${student.id}`}
+                        className="hover:underline"
+                    >
+                        {student.name}
+                    </Link>
                     <span className="text-[8px]">
                         {avg === null
                             ? 'No scores yet'

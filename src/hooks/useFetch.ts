@@ -4,7 +4,7 @@ import supabase from '../services/supabase';
 function useFetch<T>(tableName: string, columns: string) {
     const [data, setData] = useState<T[]>([]);
     const [error, setError] = useState('');
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
 
     async function fetchData() {
         try {

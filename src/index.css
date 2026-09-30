@@ -8,6 +8,18 @@ body {
     background-color: var(--color-app-bg);
 }
 
+/* Student profile print-out for parent interviews */
+@media print {
+    @page {
+        margin: 12mm;
+    }
+    body {
+        background-color: #fff;
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+    }
+}
+
 /* Score colors (each has a solid, a soft tint for backgrounds, and a deep shade for text):
 
 1 · Needs improvement — solid #E0604C, soft #F8E1DB, deep #B5402F

@@ -1,11 +1,11 @@
 //React Hooks
 import { useState } from 'react';
+import { useSearchParams } from 'react-router';
 //Custom Hooks
 import useFetch from '../../hooks/useFetch';
 import useRateStudent from '../../hooks/useRateStudent';
 //Component Imports
-import DashboardHeaders from './DashboardHeaders';
-import StudentList from './StudentList';
+import RatingsGrid from './RatingsGrid';
 import ScoreModal from '../ScoreModal/ScoreModal';
 import Navigation from '../Navigation/Navigation';
 
@@ -34,7 +34,9 @@ function Dashboard({ userId }: DashboardProps) {
     const [addStudentModal, setAddStudentModal] = useState(false);
     const [addCriteriaModal, setAddCriteriaModal] = useState(false);
     const [selectedTermId, setSelectedTermId] = useState<number | null>(null);
-    const [selectedClassId, setSelectedClassId] = useState<number>(1);
+    // Selected class lives in the URL (?classId=) so the profile's "Back" link returns to it
+    const [searchParams, setSearchParams] = useSearchParams();
+    const selectedClassId = Number(searchParams.get('classId')) || 1;
     const [activeCell, setActiveCell] = useState<{
         studentId: number;
         categoryId: number;
@@ -74,7 +76,7 @@ function Dashboard({ userId }: DashboardProps) {
         setActiveCell(null);
     };
     const onSelectClass = (id: number) => {
-        setSelectedClassId(id);
+        setSearchParams({ classId: String(id) });
     };
     const onAddStudentSucess = () => {
         setAddStudentModal(false);
@@ -155,51 +157,40 @@ function Dashboard({ userId }: DashboardProps) {
                         </p>
                     </div>
                 ) : (
-                    <div className="flex justify-start items-center bg-white w-[95vw] rounded-lg mt-4 p-2">
-                        <div
-                            className="grid text-center w-full"
-                            style={{
-                                gridTemplateColumns: `200px repeat(${visibleCategories.length}, minmax(0,1fr))`,
-                            }}
-                        >
-                            <DashboardHeaders
-                                categories={visibleCategories}
-                            ></DashboardHeaders>
-                            <StudentList
-                                termId={effectiveTermId}
-                                students={visibleStudents}
-                                categories={visibleCategories}
-                                ratingsLookup={ratingLookup}
-                                onActiveCell={(studentId, categoryId) =>
-                                    setActiveCell({ studentId, categoryId })
-                                }
-                            ></StudentList>
-                            {activeCell &&
-                                activeStudent &&
-                                activeCategory &&
-                                activeClass && (
-                                    <ScoreModal
-                                        onClose={() => setActiveCell(null)}
-                                        onSetRating={setRating}
-                                        onHandleRating={(e) =>
-                                            handleRating(
-                                                e,
-                                                activeCell,
-                                                effectiveTermId,
-                                                userId,
-                                            )
-                                        }
-                                        student={activeStudent}
-                                        category={activeCategory}
-                                        studentClass={activeClass}
-                                        status={status}
-                                        errorMessage={error}
-                                        currentRating={currentRating?.level}
-                                        rating={rating}
-                                    ></ScoreModal>
-                                )}
-                        </div>
-                    </div>
+                    <RatingsGrid
+                        termId={effectiveTermId}
+                        students={visibleStudents}
+                        categories={visibleCategories}
+                        ratingsLookup={ratingLookup}
+                        onActiveCell={(studentId, categoryId) =>
+                            setActiveCell({ studentId, categoryId })
+                        }
+                    >
+                        {activeCell &&
+                            activeStudent &&
+                            activeCategory &&
+                            activeClass && (
+                                <ScoreModal
+                                    onClose={() => setActiveCell(null)}
+                                    onSetRating={setRating}
+                                    onHandleRating={(e) =>
+                                        handleRating(
+                                            e,
+                                            activeCell,
+                                            effectiveTermId,
+                                            userId,
+                                        )
+                                    }
+                                    student={activeStudent}
+                                    category={activeCategory}
+                                    studentClass={activeClass}
+                                    status={status}
+                                    errorMessage={error}
+                                    currentRating={currentRating?.level}
+                                    rating={rating}
+                                ></ScoreModal>
+                            )}
+                    </RatingsGrid>
                 )}
                 {addStudentModal && (
                     <AddStudentModal

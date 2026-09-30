@@ -8,7 +8,9 @@ type DashboardHeadersProps = {
 function DashboardHeaders({ categories }: DashboardHeadersProps) {
     return (
         <>
-            <div>Student Name</div>
+            <div className="sticky left-0 z-10 pl-2 bg-white border-r border-[#F2EDE4]">
+                Student Name
+            </div>
             {categories.map((category) => (
                 <div className="truncate" title={category.criteria} key={category.id}>
                     {category.criteria}

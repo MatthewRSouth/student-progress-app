@@ -8,6 +8,7 @@ type Payload = {
     term_id: number;
     user_id: string;
     level: number;
+    note?: string | null;
 };
 
 function useRateStudent(refetchRatings: () => void, onSuccess: () => void) {
@@ -15,12 +16,14 @@ function useRateStudent(refetchRatings: () => void, onSuccess: () => void) {
     const [rating, setRating] = useState(0);
     const [error, setError] = useState('');
     const [status, setStatus] = useState('idle'); //'idle', 'success', 'error'
+    const [isSaving, setIsSaving] = useState(false);
 
     async function handleRating(
         e: React.MouseEvent<HTMLButtonElement>,
         activeCell: { studentId: number; categoryId: number } | null,
         termId: number | null,
         userId: string,
+        note?: string,
     ) {
         //This handler creates the payload and inserts the payload into supabase.
         e.preventDefault();
@@ -53,11 +56,19 @@ function useRateStudent(refetchRatings: () => void, onSuccess: () => void) {
             user_id: userId,
             level: rating,
         };
+        // Callers that pass no note (the dashboard) send exactly the payload above.
+        // An empty or whitespace-only note is stored as null.
+        if (note !== undefined) {
+            const trimmedNote = note.trim();
+            payload.note = trimmedNote === '' ? null : trimmedNote;
+        }
 
+        setIsSaving(true);
         const { error } = await supabase
             .from('ratings')
             .insert(payload)
             .select();
+        setIsSaving(false);
 
         if (error) {
             console.error(error);
@@ -72,6 +83,14 @@ function useRateStudent(refetchRatings: () => void, onSuccess: () => void) {
         setRating(0);
     }
 
-    return { rating, setRating, status, setStatus, error, handleRating };
+    return {
+        rating,
+        setRating,
+        status,
+        setStatus,
+        error,
+        isSaving,
+        handleRating,
+    };
 }
 export default useRateStudent;

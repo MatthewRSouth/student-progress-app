@@ -3,12 +3,11 @@ import { useState } from 'react';
 import { useSearchParams } from 'react-router';
 //Custom Hooks
 import useFetch from '../../hooks/useFetch';
-import useRateStudent from '../../hooks/useRateStudent';
 import useCriteriaLanguage from '../../hooks/useCriteriaLanguage';
 //Component Imports
 import RatingsGrid from './RatingsGrid';
 import ArchivedStudentList from './ArchivedStudentList';
-import ScoreModal from '../ScoreModal/ScoreModal';
+import ScoreEntryModal from '../ScoreEntryModal/ScoreEntryModal';
 import Navigation from '../Navigation/Navigation';
 
 import AddStudentModal from '../AddStudentModal/AddStudentModal';
@@ -18,6 +17,7 @@ import EditCriteriaModal from '../EditCriteriaModal/EditCriteriaModal';
 import supabase from '../../services/supabase';
 //utils
 import { getCriteriaLabel } from '../../utils/criteriaLabels';
+import { sortOldestFirst } from '../../utils/chartCoordinates';
 //types
 import {
     type Rating,
@@ -76,13 +76,10 @@ function Dashboard({ userId }: DashboardProps) {
         refetch: refetchRatings,
     } = useFetch<Rating>(
         'ratings',
-        'student_id, category_id, level, created_at, term_id',
+        'student_id, category_id, level, created_at, term_id, note',
     );
 
     //Helpers
-    const onSuccess = () => {
-        setActiveCell(null);
-    };
     const onSelectClass = (id: number) => {
         setIsArchivedViewSelected(false);
         setSearchParams({ classId: String(id) });
@@ -92,11 +89,6 @@ function Dashboard({ userId }: DashboardProps) {
     };
 
     //Custom Hook Uses
-    const { setRating, rating, status, error, handleRating } = useRateStudent(
-        refetchRatings,
-        onSuccess,
-    );
-
     const { criteriaLanguage, changeCriteriaLanguage } = useCriteriaLanguage();
 
     //Memo to rate look up
@@ -146,6 +138,24 @@ function Dashboard({ userId }: DashboardProps) {
               `${activeCell.studentId}-${activeCell.categoryId}-${effectiveTermId}`
           ]
         : undefined;
+
+    // Chart data for the score entry modal: this child's ratings for the criterion,
+    // and the same criterion's ratings across the active students in the class
+    const visibleStudentIds = new Set(
+        visibleStudents.map((visibleStudent) => visibleStudent.id),
+    );
+    const activeChildRatingsOldestFirst = sortOldestFirst(
+        ratings.filter(
+            (rating) =>
+                rating.student_id === activeCell?.studentId &&
+                rating.category_id === activeCell?.categoryId,
+        ),
+    );
+    const activeClassRatingsForCriterion = ratings.filter(
+        (rating) =>
+            rating.category_id === activeCell?.categoryId &&
+            visibleStudentIds.has(rating.student_id),
+    );
     return (
         <>
             <Navigation
@@ -194,38 +204,27 @@ function Dashboard({ userId }: DashboardProps) {
                         onActiveCell={(studentId, categoryId) =>
                             setActiveCell({ studentId, categoryId })
                         }
-                    >
-                        {activeCell &&
-                            activeStudent &&
-                            activeCategory &&
-                            activeClass && (
-                                <ScoreModal
-                                    onClose={() => setActiveCell(null)}
-                                    onSetRating={setRating}
-                                    onHandleRating={(e) =>
-                                        handleRating(
-                                            e,
-                                            activeCell,
-                                            effectiveTermId,
-                                            userId,
-                                        )
-                                    }
-                                    student={activeStudent}
-                                    category={{
-                                        ...activeCategory,
-                                        criteria: getCriteriaLabel(
-                                            activeCategory,
-                                            criteriaLanguage,
-                                        ),
-                                    }}
-                                    studentClass={activeClass}
-                                    status={status}
-                                    errorMessage={error}
-                                    currentRating={currentRating?.level}
-                                    rating={rating}
-                                ></ScoreModal>
-                            )}
-                    </RatingsGrid>
+                    ></RatingsGrid>
+                )}
+                {activeCell && activeStudent && activeCategory && activeClass && (
+                    <ScoreEntryModal
+                        studentId={activeStudent.id}
+                        studentName={activeStudent.name}
+                        className={activeClass.name}
+                        categoryId={activeCategory.id}
+                        criteriaLabel={getCriteriaLabel(
+                            activeCategory,
+                            criteriaLanguage,
+                        )}
+                        termId={effectiveTermId ?? null}
+                        userId={userId}
+                        currentTermRating={currentRating}
+                        childRatingsOldestFirst={activeChildRatingsOldestFirst}
+                        classRatingsForCriterion={activeClassRatingsForCriterion}
+                        showClassAverage={true}
+                        refetchRatings={refetchRatings}
+                        onClose={() => setActiveCell(null)}
+                    />
                 )}
                 {addStudentModal && (
                     <AddStudentModal

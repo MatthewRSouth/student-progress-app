@@ -20,6 +20,8 @@ export type Rating = {
     level: 1 | 2 | 3 | 4;
     created_at: string;
     term_id: number;
+    // Optional observation saved with the rating. Only present where the fetch selects it.
+    note?: string | null;
 };
 export type Term = { id: number; term: string; created_at: string };
 

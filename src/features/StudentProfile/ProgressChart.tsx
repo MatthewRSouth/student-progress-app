@@ -13,6 +13,9 @@ import {
 const VIEWBOX_WIDTH = 320;
 const VIEWBOX_HEIGHT = 130;
 const CHART_BOX: ChartBox = { left: 14, top: 10, plotWidth: 292, plotHeight: 90 };
+// Room on the left for the coloured level markers, when they are shown
+const LEVEL_MARKER_SIZE = 8;
+const LEVEL_MARKER_GUTTER = 14;
 const DATE_LABEL_Y = 122;
 const MAX_DATE_LABELS = 6;
 
@@ -25,18 +28,28 @@ type ProgressChartProps = {
     childRatingsOldestFirst: Rating[];
     classRatingsForCriterion: Rating[];
     showClassAverage: boolean;
+    // Coloured squares on the y-axis showing which gridline is which level
+    showLevelMarkers?: boolean;
 };
 
 function ProgressChart({
     childRatingsOldestFirst,
     classRatingsForCriterion,
     showClassAverage,
+    showLevelMarkers = false,
 }: ProgressChartProps) {
-    const childPoints = buildChildPoints(childRatingsOldestFirst, CHART_BOX);
+    const chartBox: ChartBox = showLevelMarkers
+        ? {
+              ...CHART_BOX,
+              left: CHART_BOX.left + LEVEL_MARKER_GUTTER,
+              plotWidth: CHART_BOX.plotWidth - LEVEL_MARKER_GUTTER,
+          }
+        : CHART_BOX;
+    const childPoints = buildChildPoints(childRatingsOldestFirst, chartBox);
     const classAveragePoints = buildClassAveragePoints(
         childRatingsOldestFirst,
         classRatingsForCriterion,
-        CHART_BOX,
+        chartBox,
     );
     const lastPointIndex = childPoints.length - 1;
     // With many ratings, label every Nth date (always the newest) so labels don't collide
@@ -56,20 +69,32 @@ function ProgressChart({
             {([1, 2, 3, 4] as const).map((gridLevel) => (
                 <line
                     key={gridLevel}
-                    x1={CHART_BOX.left}
-                    x2={CHART_BOX.left + CHART_BOX.plotWidth}
-                    y1={levelToY(gridLevel, CHART_BOX)}
-                    y2={levelToY(gridLevel, CHART_BOX)}
+                    x1={chartBox.left}
+                    x2={chartBox.left + chartBox.plotWidth}
+                    y1={levelToY(gridLevel, chartBox)}
+                    y2={levelToY(gridLevel, chartBox)}
                     stroke={GRIDLINE_COLOR}
                     strokeWidth={1}
                 />
             ))}
+            {showLevelMarkers &&
+                ([1, 2, 3, 4] as const).map((markerLevel) => (
+                    <rect
+                        key={`marker-${markerLevel}`}
+                        x={2}
+                        y={levelToY(markerLevel, chartBox) - LEVEL_MARKER_SIZE / 2}
+                        width={LEVEL_MARKER_SIZE}
+                        height={LEVEL_MARKER_SIZE}
+                        rx={2}
+                        fill={LEVELS[markerLevel].hex}
+                    />
+                ))}
 
             {/* Rendered conditionally (not hidden with CSS) so the printed page matches the screen */}
             {showClassAverage && (
                 <>
                     <path
-                        d={buildBandPath(classAveragePoints, CHART_BOX)}
+                        d={buildBandPath(classAveragePoints, chartBox)}
                         fill={CLASS_AVERAGE_COLOR}
                         fillOpacity={0.08}
                     />

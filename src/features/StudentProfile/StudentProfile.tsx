@@ -12,12 +12,14 @@ import CriterionCard from './CriterionCard';
 import InteractionsSection from './InteractionsSection';
 import EditStudentModal from '../EditStudentModal/EditStudentModal';
 import RemoveStudentModal from '../RemoveStudentModal/RemoveStudentModal';
+import ScoreEntryModal from '../ScoreEntryModal/ScoreEntryModal';
 //service imports
 import supabase from '../../services/supabase';
 //utils & constants
 import { LEVELS } from '../../constants/levels';
 import { sortOldestFirst } from '../../utils/chartCoordinates';
 import { splitName } from '../../utils/studentNames';
+import { getCriteriaLabel } from '../../utils/criteriaLabels';
 //types
 import {
     type Rating,
@@ -43,6 +45,10 @@ function StudentProfile({ userId }: StudentProfileProps) {
     const [editStudentModal, setEditStudentModal] = useState(false);
     const [removeStudentModal, setRemoveStudentModal] = useState(false);
     const [showClassAverage, setShowClassAverage] = useState(true);
+    // The criterion whose score entry modal is open (null when closed)
+    const [scoreEntryCategoryId, setScoreEntryCategoryId] = useState<
+        number | null
+    >(null);
     const { criteriaLanguage, changeCriteriaLanguage } = useCriteriaLanguage();
 
     //Supabase Fetches
@@ -61,9 +67,10 @@ function StudentProfile({ userId }: StudentProfileProps) {
         data: ratings,
         loading: ratingsLoading,
         error: ratingsError,
+        refetch: refetchRatings,
     } = useFetch<Rating>(
         'ratings',
-        'student_id, category_id, level, created_at, term_id',
+        'student_id, category_id, level, created_at, term_id, note',
     );
     const {
         data: terms,
@@ -145,12 +152,12 @@ function StudentProfile({ userId }: StudentProfileProps) {
         );
     }
 
-    // Only students and observations are refetched on this page; the rest load once.
-    // Gating on students' first load only keeps the summary field mounted during refetches.
+    // Only students, ratings and observations are refetched on this page; the rest load once.
+    // Gating on their first load only keeps the page (and the summary field) mounted during refetches.
     const isFirstLoad =
         (studentsLoading && students.length === 0) ||
         categoriesLoading ||
-        ratingsLoading ||
+        (ratingsLoading && ratings.length === 0) ||
         termsLoading ||
         classesLoading ||
         summariesLoading ||
@@ -213,6 +220,25 @@ function StudentProfile({ userId }: StudentProfileProps) {
                     classmate.class_id === student.class_id && classmate.is_active,
             )
             .map((classmate) => classmate.id),
+    );
+
+    // Chart data for one criterion: shared by its card and by the score entry modal
+    const getChildRatingsOldestFirst = (categoryId: number) =>
+        sortOldestFirst(
+            ratings.filter(
+                (rating) =>
+                    rating.student_id === student.id &&
+                    rating.category_id === categoryId,
+            ),
+        );
+    const getClassRatingsForCriterion = (categoryId: number) =>
+        ratings.filter(
+            (rating) =>
+                rating.category_id === categoryId &&
+                activeClassmateIds.has(rating.student_id),
+        );
+    const scoreEntryCategory = activeCategories.find(
+        (category) => category.id === scoreEntryCategoryId,
     );
 
     const currentTermRatings = activeCategories
@@ -307,17 +333,11 @@ function StudentProfile({ userId }: StudentProfileProps) {
                             <CriterionCard
                                 key={category.id}
                                 category={category}
-                                childRatingsOldestFirst={sortOldestFirst(
-                                    ratings.filter(
-                                        (rating) =>
-                                            rating.student_id === student.id &&
-                                            rating.category_id === category.id,
-                                    ),
+                                childRatingsOldestFirst={getChildRatingsOldestFirst(
+                                    category.id,
                                 )}
-                                classRatingsForCriterion={ratings.filter(
-                                    (rating) =>
-                                        rating.category_id === category.id &&
-                                        activeClassmateIds.has(rating.student_id),
+                                classRatingsForCriterion={getClassRatingsForCriterion(
+                                    category.id,
                                 )}
                                 currentTermRating={
                                     ratingLookup[
@@ -326,6 +346,9 @@ function StudentProfile({ userId }: StudentProfileProps) {
                                 }
                                 showClassAverage={showClassAverage}
                                 criteriaLanguage={criteriaLanguage}
+                                onOpenScoreEntry={() =>
+                                    setScoreEntryCategoryId(category.id)
+                                }
                             />
                         ))}
                     </div>
@@ -345,6 +368,34 @@ function StudentProfile({ userId }: StudentProfileProps) {
                 </div>
             </div>
 
+            {scoreEntryCategory && (
+                <ScoreEntryModal
+                    studentId={student.id}
+                    studentName={student.name}
+                    className={className}
+                    categoryId={scoreEntryCategory.id}
+                    criteriaLabel={getCriteriaLabel(
+                        scoreEntryCategory,
+                        criteriaLanguage,
+                    )}
+                    termId={currentTermId ?? null}
+                    userId={userId}
+                    currentTermRating={
+                        ratingLookup[
+                            `${student.id}-${scoreEntryCategory.id}-${currentTermId}`
+                        ]
+                    }
+                    childRatingsOldestFirst={getChildRatingsOldestFirst(
+                        scoreEntryCategory.id,
+                    )}
+                    classRatingsForCriterion={getClassRatingsForCriterion(
+                        scoreEntryCategory.id,
+                    )}
+                    showClassAverage={showClassAverage}
+                    refetchRatings={refetchRatings}
+                    onClose={() => setScoreEntryCategoryId(null)}
+                />
+            )}
             {editStudentModal && (
                 <EditStudentModal
                     student={student}

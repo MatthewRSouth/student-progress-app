@@ -4,16 +4,20 @@ import { useSearchParams } from 'react-router';
 //Custom Hooks
 import useFetch from '../../hooks/useFetch';
 import useRateStudent from '../../hooks/useRateStudent';
+import useCriteriaLanguage from '../../hooks/useCriteriaLanguage';
 //Component Imports
 import RatingsGrid from './RatingsGrid';
+import ArchivedStudentList from './ArchivedStudentList';
 import ScoreModal from '../ScoreModal/ScoreModal';
 import Navigation from '../Navigation/Navigation';
 
 import AddStudentModal from '../AddStudentModal/AddStudentModal';
-import AddCriteriaModal from '../AddCriteriaModal/AddCriteriaModal';
+import EditCriteriaModal from '../EditCriteriaModal/EditCriteriaModal';
 
 //service imports
 import supabase from '../../services/supabase';
+//utils
+import { getCriteriaLabel } from '../../utils/criteriaLabels';
 //types
 import {
     type Rating,
@@ -21,6 +25,7 @@ import {
     type Student,
     type Term,
     type Cls,
+    type UserProfile,
 } from '../../types';
 import Terms from './Terms';
 import useRatingLookup from '../../hooks/useRatingLookup';
@@ -32,11 +37,13 @@ type DashboardProps = {
 function Dashboard({ userId }: DashboardProps) {
     //State vars
     const [addStudentModal, setAddStudentModal] = useState(false);
-    const [addCriteriaModal, setAddCriteriaModal] = useState(false);
+    const [editCriteriaModal, setEditCriteriaModal] = useState(false);
     const [selectedTermId, setSelectedTermId] = useState<number | null>(null);
     // Selected class lives in the URL (?classId=) so the profile's "Back" link returns to it
     const [searchParams, setSearchParams] = useSearchParams();
     const selectedClassId = Number(searchParams.get('classId')) || 1;
+    // The Archived tab is not a class, so it is tracked apart from selectedClassId
+    const [isArchivedViewSelected, setIsArchivedViewSelected] = useState(false);
     const [activeCell, setActiveCell] = useState<{
         studentId: number;
         categoryId: number;
@@ -47,7 +54,7 @@ function Dashboard({ userId }: DashboardProps) {
         data: categories,
         error: categoriesError,
         refetch: refetchCriteria,
-    } = useFetch<Category>('categories', 'id, criteria, class_id, is_active');
+    } = useFetch<Category>('categories', 'id, criteria, criteria_en, class_id, is_active');
     const {
         data: students,
         error: studentsError,
@@ -61,6 +68,7 @@ function Dashboard({ userId }: DashboardProps) {
         'classes',
         'id,name',
     );
+    const { data: users } = useFetch<UserProfile>('users', 'id, role');
 
     const {
         data: ratings,
@@ -76,13 +84,11 @@ function Dashboard({ userId }: DashboardProps) {
         setActiveCell(null);
     };
     const onSelectClass = (id: number) => {
+        setIsArchivedViewSelected(false);
         setSearchParams({ classId: String(id) });
     };
     const onAddStudentSucess = () => {
         setAddStudentModal(false);
-    };
-    const onAddCriteriaSucess = () => {
-        setAddCriteriaModal(false);
     };
 
     //Custom Hook Uses
@@ -90,6 +96,8 @@ function Dashboard({ userId }: DashboardProps) {
         refetchRatings,
         onSuccess,
     );
+
+    const { criteriaLanguage, changeCriteriaLanguage } = useCriteriaLanguage();
 
     //Memo to rate look up
     const ratingLookup = useRatingLookup(ratings);
@@ -112,9 +120,15 @@ function Dashboard({ userId }: DashboardProps) {
     const visibleStudents = students.filter(
         (s) => s.class_id === selectedClassId && s.is_active,
     );
-    const visibleCategories = categories.filter(
-        (c) => c.class_id === selectedClassId && c.is_active,
-    );
+    // The archived view is the one place that lists inactive students
+    const archivedStudents = students.filter((student) => !student.is_active);
+    // The fetch has no fixed order (an edited row comes back last), so keep criteria in the order they were created
+    const visibleCategories = categories
+        .filter((c) => c.class_id === selectedClassId && c.is_active)
+        .sort(
+            (earlierCategory, laterCategory) =>
+                earlierCategory.id - laterCategory.id,
+        );
 
     //Current and Active Variables
     const mostRecentTerms = [...terms].sort((a: Term, b: Term) =>
@@ -126,6 +140,7 @@ function Dashboard({ userId }: DashboardProps) {
         (c) => c.id === activeCell?.categoryId,
     );
     const activeClass = classes.find((cls) => cls.id === selectedClassId);
+    const isAdmin = users.find((user) => user.id === userId)?.role === 'admin';
     const currentRating = activeCell
         ? ratingLookup[
               `${activeCell.studentId}-${activeCell.categoryId}-${effectiveTermId}`
@@ -135,21 +150,34 @@ function Dashboard({ userId }: DashboardProps) {
         <>
             <Navigation
                 handleSignOut={handleSignOut}
+                criteriaLanguage={criteriaLanguage}
+                onChangeCriteriaLanguage={changeCriteriaLanguage}
                 selectedClassId={selectedClassId}
                 classes={classes}
                 onSelectClass={onSelectClass}
-                setAddCriteriaModal={setAddCriteriaModal}
+                isArchivedViewSelected={isArchivedViewSelected}
+                onSelectArchivedView={() => setIsArchivedViewSelected(true)}
+                setEditCriteriaModal={setEditCriteriaModal}
                 setAddStudentModal={setAddStudentModal}
             ></Navigation>
             <div className="flex flex-col justify-center items-center">
-                <Terms
-                    effectiveTermId={effectiveTermId}
-                    selectedTermId={selectedTermId}
-                    setSelectedTermId={setSelectedTermId}
-                    terms={terms}
-                />
+                {!isArchivedViewSelected && (
+                    <Terms
+                        effectiveTermId={effectiveTermId}
+                        selectedTermId={selectedTermId}
+                        setSelectedTermId={setSelectedTermId}
+                        terms={terms}
+                    />
+                )}
                 {/* Dashboard */}
-                {visibleCategories.length === 0 &&
+                {isArchivedViewSelected ? (
+                    <ArchivedStudentList
+                        archivedStudents={archivedStudents}
+                        classes={classes}
+                        isAdmin={isAdmin}
+                        refetchStudents={refetchStudents}
+                    />
+                ) : visibleCategories.length === 0 &&
                 visibleStudents.length === 0 ? (
                     <div className="justify-center items-center my-5 text-center">
                         <p className="font-bold text-xl">
@@ -161,6 +189,7 @@ function Dashboard({ userId }: DashboardProps) {
                         termId={effectiveTermId}
                         students={visibleStudents}
                         categories={visibleCategories}
+                        criteriaLanguage={criteriaLanguage}
                         ratingsLookup={ratingLookup}
                         onActiveCell={(studentId, categoryId) =>
                             setActiveCell({ studentId, categoryId })
@@ -182,7 +211,13 @@ function Dashboard({ userId }: DashboardProps) {
                                         )
                                     }
                                     student={activeStudent}
-                                    category={activeCategory}
+                                    category={{
+                                        ...activeCategory,
+                                        criteria: getCriteriaLabel(
+                                            activeCategory,
+                                            criteriaLanguage,
+                                        ),
+                                    }}
                                     studentClass={activeClass}
                                     status={status}
                                     errorMessage={error}
@@ -200,13 +235,15 @@ function Dashboard({ userId }: DashboardProps) {
                         onClose={() => setAddStudentModal(false)}
                     ></AddStudentModal>
                 )}
-                {addCriteriaModal && (
-                    <AddCriteriaModal
-                        refetchCriteria={refetchCriteria}
-                        onAddCriteriaSuccess={onAddCriteriaSucess}
+                {editCriteriaModal && (
+                    <EditCriteriaModal
+                        activeCategories={visibleCategories}
+                        className={activeClass?.name ?? ''}
                         selectedClassId={selectedClassId}
-                        onClose={() => setAddCriteriaModal(false)}
-                    ></AddCriteriaModal>
+                        isAdmin={isAdmin}
+                        refetchCriteria={refetchCriteria}
+                        onClose={() => setEditCriteriaModal(false)}
+                    ></EditCriteriaModal>
                 )}
             </div>
         </>

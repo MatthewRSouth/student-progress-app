@@ -1,7 +1,12 @@
 import DashboardHeaders from './DashboardHeaders';
 import StudentList from './StudentList';
 //types
-import { type Rating, type Category, type Student } from '../../types';
+import {
+    type Rating,
+    type Category,
+    type Student,
+    type CriteriaLanguage,
+} from '../../types';
 
 // Below this width a criterion column can't show its 100px progress bar plus cell padding,
 // so the grid scrolls sideways instead of squeezing the columns further
@@ -11,6 +16,7 @@ const CRITERION_COLUMN_MIN_WIDTH_PX = 120;
 type RatingsGridProps = {
     students: Student[];
     categories: Category[];
+    criteriaLanguage: CriteriaLanguage;
     termId: number;
     ratingsLookup: Record<string, Rating>;
     onActiveCell: (studentId: number, categoryId: number) => void;
@@ -20,6 +26,7 @@ type RatingsGridProps = {
 function RatingsGrid({
     students,
     categories,
+    criteriaLanguage,
     termId,
     ratingsLookup,
     onActiveCell,
@@ -36,7 +43,10 @@ function RatingsGrid({
                         categories.length * CRITERION_COLUMN_MIN_WIDTH_PX,
                 }}
             >
-                <DashboardHeaders categories={categories}></DashboardHeaders>
+                <DashboardHeaders
+                    categories={categories}
+                    criteriaLanguage={criteriaLanguage}
+                ></DashboardHeaders>
                 <StudentList
                     termId={termId}
                     students={students}

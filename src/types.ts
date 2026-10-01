@@ -1,9 +1,13 @@
 export type Category = {
     id: number;
     criteria: string;
+    criteria_en: string | null;
     class_id: number;
     is_active: boolean;
 };
+// Language the criteria names are shown in on screen
+export type CriteriaLanguage = 'ja' | 'en';
+
 export type Student = {
     id: number;
     name: string;

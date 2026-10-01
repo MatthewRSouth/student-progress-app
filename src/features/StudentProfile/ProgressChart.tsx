@@ -24,11 +24,13 @@ const LABEL_COLOR = '#8C8377';
 type ProgressChartProps = {
     childRatingsOldestFirst: Rating[];
     classRatingsForCriterion: Rating[];
+    showClassAverage: boolean;
 };
 
 function ProgressChart({
     childRatingsOldestFirst,
     classRatingsForCriterion,
+    showClassAverage,
 }: ProgressChartProps) {
     const childPoints = buildChildPoints(childRatingsOldestFirst, CHART_BOX);
     const classAveragePoints = buildClassAveragePoints(
@@ -45,7 +47,11 @@ function ProgressChart({
             viewBox={`0 0 ${VIEWBOX_WIDTH} ${VIEWBOX_HEIGHT}`}
             width="100%"
             role="img"
-            aria-label="Rating trend compared with the class average"
+            aria-label={
+                showClassAverage
+                    ? 'Rating trend compared with the class average'
+                    : 'Rating trend'
+            }
         >
             {([1, 2, 3, 4] as const).map((gridLevel) => (
                 <line
@@ -59,19 +65,24 @@ function ProgressChart({
                 />
             ))}
 
-            <path
-                d={buildBandPath(classAveragePoints, CHART_BOX)}
-                fill={CLASS_AVERAGE_COLOR}
-                fillOpacity={0.08}
-            />
-            <polyline
-                points={toPolylinePoints(classAveragePoints)}
-                fill="none"
-                stroke={CLASS_AVERAGE_COLOR}
-                strokeOpacity={0.5}
-                strokeWidth={1.5}
-                strokeDasharray="4 3"
-            />
+            {/* Rendered conditionally (not hidden with CSS) so the printed page matches the screen */}
+            {showClassAverage && (
+                <>
+                    <path
+                        d={buildBandPath(classAveragePoints, CHART_BOX)}
+                        fill={CLASS_AVERAGE_COLOR}
+                        fillOpacity={0.08}
+                    />
+                    <polyline
+                        points={toPolylinePoints(classAveragePoints)}
+                        fill="none"
+                        stroke={CLASS_AVERAGE_COLOR}
+                        strokeOpacity={0.5}
+                        strokeWidth={1.5}
+                        strokeDasharray="4 3"
+                    />
+                </>
+            )}
 
             <polyline
                 points={toPolylinePoints(childPoints)}

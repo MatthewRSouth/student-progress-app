@@ -1,12 +1,25 @@
 import { LEVELS } from '../constants/levels';
 
 import SignOutBtn from '../features/Dashboard/SignOutBtn';
+import { type CriteriaLanguage } from '../types';
 
 type PageHeaderProps = {
     handleSignOut: () => void;
+    criteriaLanguage: CriteriaLanguage;
+    onChangeCriteriaLanguage: (criteriaLanguage: CriteriaLanguage) => void;
 };
 
-function PageHeader({ handleSignOut }: PageHeaderProps) {
+const CRITERIA_LANGUAGE_OPTIONS: { language: CriteriaLanguage; label: string }[] =
+    [
+        { language: 'ja', label: '日本語' },
+        { language: 'en', label: 'English' },
+    ];
+
+function PageHeader({
+    handleSignOut,
+    criteriaLanguage,
+    onChangeCriteriaLanguage,
+}: PageHeaderProps) {
     return (
         <div className="flex justify-between items-center">
             <div className="flex mx-4">
@@ -31,6 +44,29 @@ function PageHeader({ handleSignOut }: PageHeaderProps) {
                                 {label}
                             </p>
                         </div>
+                    ))}
+                </div>
+                {/* Language of the criteria names on screen; printed pages always use Japanese */}
+                <div
+                    className="flex items-center gap-1 mx-4 text-[10px]"
+                    role="group"
+                    aria-label="Criteria language"
+                >
+                    <span className="whitespace-nowrap mr-1">Criteria</span>
+                    {CRITERIA_LANGUAGE_OPTIONS.map(({ language, label }) => (
+                        <button
+                            key={language}
+                            type="button"
+                            onClick={() => onChangeCriteriaLanguage(language)}
+                            aria-pressed={criteriaLanguage === language}
+                            className={`px-2 py-1 rounded-md cursor-pointer whitespace-nowrap ${
+                                criteriaLanguage === language
+                                    ? 'bg-teal-700 text-white'
+                                    : 'hover:bg-teal-800 hover:text-white'
+                            }`}
+                        >
+                            {label}
+                        </button>
                     ))}
                 </div>
                 <SignOutBtn onHandleSignout={handleSignOut} />

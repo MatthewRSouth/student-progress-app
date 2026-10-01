@@ -4,6 +4,7 @@ import { Link, useNavigate, useParams } from 'react-router';
 //Custom Hooks
 import useFetch from '../../hooks/useFetch';
 import useRatingLookup from '../../hooks/useRatingLookup';
+import useCriteriaLanguage from '../../hooks/useCriteriaLanguage';
 //Component Imports
 import PageHeader from '../../ui/PageHeader';
 import ProfileHeader from './ProfileHeader';
@@ -41,6 +42,8 @@ function StudentProfile({ userId }: StudentProfileProps) {
     //State vars
     const [editStudentModal, setEditStudentModal] = useState(false);
     const [removeStudentModal, setRemoveStudentModal] = useState(false);
+    const [showClassAverage, setShowClassAverage] = useState(true);
+    const { criteriaLanguage, changeCriteriaLanguage } = useCriteriaLanguage();
 
     //Supabase Fetches
     const {
@@ -53,7 +56,7 @@ function StudentProfile({ userId }: StudentProfileProps) {
         data: categories,
         loading: categoriesLoading,
         error: categoriesError,
-    } = useFetch<Category>('categories', 'id, criteria, class_id, is_active');
+    } = useFetch<Category>('categories', 'id, criteria, criteria_en, class_id, is_active');
     const {
         data: ratings,
         loading: ratingsLoading,
@@ -115,7 +118,11 @@ function StudentProfile({ userId }: StudentProfileProps) {
 
     const pageHeader = (
         <div className="print:hidden">
-            <PageHeader handleSignOut={handleSignOut} />
+            <PageHeader
+                handleSignOut={handleSignOut}
+                criteriaLanguage={criteriaLanguage}
+                onChangeCriteriaLanguage={changeCriteriaLanguage}
+            />
         </div>
     );
 
@@ -189,9 +196,16 @@ function StudentProfile({ userId }: StudentProfileProps) {
     const currentTermId = mostRecentTerms[0]?.id;
 
     // Students and Categories Filter
-    const activeCategories = categories.filter(
-        (category) => category.class_id === student.class_id && category.is_active,
-    );
+    // The fetch has no fixed order (an edited row comes back last), so keep criteria in the order they were created
+    const activeCategories = categories
+        .filter(
+            (category) =>
+                category.class_id === student.class_id && category.is_active,
+        )
+        .sort(
+            (earlierCategory, laterCategory) =>
+                earlierCategory.id - laterCategory.id,
+        );
     const activeClassmateIds = new Set(
         students
             .filter(
@@ -215,15 +229,11 @@ function StudentProfile({ userId }: StudentProfileProps) {
                   0,
               ) / currentTermRatings.length;
 
-    const studentRatingCount = ratings.filter(
-        (rating) => rating.student_id === student.id,
-    ).length;
-    // Archived notes still count as history: they block a hard delete
-    const studentObservations = observations.filter(
-        (observation) => observation.student_id === student.id,
-    );
-    const activeObservationsNewestFirst = studentObservations
-        .filter((observation) => observation.is_active)
+    const activeObservationsNewestFirst = observations
+        .filter(
+            (observation) =>
+                observation.student_id === student.id && observation.is_active,
+        )
         .sort((newer, older) => older.created_at.localeCompare(newer.created_at));
     const initialSummary =
         summaries.find((summary) => summary.student_id === student.id)?.summary ??
@@ -270,10 +280,21 @@ function StudentProfile({ userId }: StudentProfileProps) {
                         <span className="inline-block w-4 border-t-2 border-[#2E2A24]" />
                         This child
                     </span>
-                    <span className="flex items-center gap-1.5">
-                        <span className="inline-block w-4 border-t-2 border-dashed border-[#18605C]/60" />
-                        Class average
-                    </span>
+                    {showClassAverage && (
+                        <span className="flex items-center gap-1.5">
+                            <span className="inline-block w-4 border-t-2 border-dashed border-[#18605C]/60" />
+                            Class average
+                        </span>
+                    )}
+                    <label className="print:hidden flex items-center gap-1.5 cursor-pointer">
+                        <input
+                            type="checkbox"
+                            checked={showClassAverage}
+                            onChange={(e) => setShowClassAverage(e.target.checked)}
+                            className="accent-teal-700 cursor-pointer"
+                        />
+                        Show class average
+                    </label>
                 </div>
 
                 {activeCategories.length === 0 ? (
@@ -303,6 +324,8 @@ function StudentProfile({ userId }: StudentProfileProps) {
                                         `${student.id}-${category.id}-${currentTermId}`
                                     ]
                                 }
+                                showClassAverage={showClassAverage}
+                                criteriaLanguage={criteriaLanguage}
                             />
                         ))}
                     </div>
@@ -334,8 +357,6 @@ function StudentProfile({ userId }: StudentProfileProps) {
             {removeStudentModal && (
                 <RemoveStudentModal
                     student={student}
-                    ratingCount={studentRatingCount}
-                    observationCount={studentObservations.length}
                     className={className}
                     onBackToClass={() => navigate(backToClassPath)}
                     onClose={() => setRemoveStudentModal(false)}

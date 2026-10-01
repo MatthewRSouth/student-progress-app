@@ -7,29 +7,29 @@ type Payload = {
     class_id: number;
 };
 
-function useAddCriteria(refetchCriteria: () => void, onSuccess: () => void) {
+function useAddCriteria(refetchCriteria: () => void, onSuccess?: () => void) {
     const [criteria, setCriteria] = useState('');
     const [addCriteriaError, setAddCriteriaError] = useState('');
     const [loading, setLoading] = useState(false);
 
-    async function handleAddCriteria(
-        e: React.MouseEvent<HTMLButtonElement>,
-        class_id: number,
-    ) {
+    // Takes any event so both the Add button and Enter (form submit) can call it
+    async function handleAddCriteria(e: React.SyntheticEvent, class_id: number) {
         try {
             e.preventDefault();
             setLoading(true);
             setAddCriteriaError('');
 
+            const trimmedCriteria = criteria.trim();
+
             //No name prevention
-            if (criteria === '') {
+            if (trimmedCriteria === '') {
                 setAddCriteriaError('Please insert the criteria');
                 return;
             }
 
             //set payload
             const payload: Payload = {
-                criteria: criteria,
+                criteria: trimmedCriteria,
                 class_id: class_id,
             };
 
@@ -45,7 +45,7 @@ function useAddCriteria(refetchCriteria: () => void, onSuccess: () => void) {
                 );
                 return;
             }
-            onSuccess();
+            onSuccess?.();
             refetchCriteria();
             setCriteria('');
         } catch (err) {

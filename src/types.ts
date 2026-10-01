@@ -13,6 +13,8 @@ export type Student = {
     name: string;
     class_id: number;
     is_active: boolean;
+    // Path of the student's photo in the private student-avatars bucket (null = show initials)
+    avatar_path: string | null;
 };
 export type Rating = {
     student_id: number;

@@ -15,6 +15,7 @@ const CRITERION_COLUMN_MIN_WIDTH_PX = 120;
 
 type RatingsGridProps = {
     students: Student[];
+    avatarUrls: Record<number, string>;
     categories: Category[];
     criteriaLanguage: CriteriaLanguage;
     termId: number;
@@ -25,6 +26,7 @@ type RatingsGridProps = {
 
 function RatingsGrid({
     students,
+    avatarUrls,
     categories,
     criteriaLanguage,
     termId,
@@ -50,6 +52,7 @@ function RatingsGrid({
                 <StudentList
                     termId={termId}
                     students={students}
+                    avatarUrls={avatarUrls}
                     categories={categories}
                     ratingsLookup={ratingsLookup}
                     onActiveCell={onActiveCell}

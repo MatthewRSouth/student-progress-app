@@ -1,10 +1,11 @@
 import useRestoreStudent from '../../hooks/useRestoreStudent';
-import { getInitials, getAvatarColor } from '../../utils/studentNames';
+import Avatar from '../../ui/Avatar';
 //types
 import { type Student, type Cls } from '../../types';
 
 type ArchivedStudentListProps = {
     archivedStudents: Student[];
+    avatarUrls: Record<number, string>;
     classes: Cls[];
     isAdmin: boolean;
     refetchStudents: () => void;
@@ -12,6 +13,7 @@ type ArchivedStudentListProps = {
 
 function ArchivedStudentList({
     archivedStudents,
+    avatarUrls,
     classes,
     isAdmin,
     refetchStudents,
@@ -42,16 +44,12 @@ function ArchivedStudentList({
                                 key={archivedStudent.id}
                                 className="flex items-center gap-4 border-t border-[#F2EDE4] py-3"
                             >
-                                <div
-                                    className="rounded-full w-10 h-10 flex items-center justify-center text-white shrink-0"
-                                    style={{
-                                        backgroundColor: getAvatarColor(
-                                            archivedStudent.id,
-                                        ),
-                                    }}
-                                >
-                                    {getInitials(archivedStudent.name)}
-                                </div>
+                                <Avatar
+                                    name={archivedStudent.name}
+                                    studentId={archivedStudent.id}
+                                    imageUrl={avatarUrls[archivedStudent.id]}
+                                    size="small"
+                                />
                                 <div className="flex-1">
                                     <p className="text-[#2E2A24]">
                                         {archivedStudent.name}

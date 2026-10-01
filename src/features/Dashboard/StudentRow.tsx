@@ -1,12 +1,13 @@
 import { Link } from 'react-router';
 import { LEVELS } from '../../constants/levels';
-import { getInitials, getAvatarColor } from '../../utils/studentNames';
+import Avatar from '../../ui/Avatar';
 
 //types
 import { type Rating, type Category, type Student } from '../../types';
 
 type StudentRowProps = {
     student: Student;
+    avatarUrl?: string;
     categories: Category[];
     ratingsLookup: Record<string, Rating>;
     rowIndex: number;
@@ -16,6 +17,7 @@ type StudentRowProps = {
 
 function StudentRow({
     student,
+    avatarUrl,
     categories,
     termId,
     ratingsLookup,
@@ -42,12 +44,13 @@ function StudentRow({
             <div
                 className={`sticky left-0 z-10 pl-2 border-r border-[#F2EDE4] flex justify-start items-center cursor-pointer hover:bg-[#D8CFBE] ${rowIndex % 2 === 0 ? 'bg-[#FAF6EE]' : 'bg-white'}`}
             >
-                <div
-                    className={`rounded-full  w-10 h-10 flex items-center justify-center text-white shrink-0  mx-2 `}
-                    style={{ backgroundColor: getAvatarColor(student.id) }}
-                >
-                    {getInitials(student.name)}
-                </div>
+                <Avatar
+                    name={student.name}
+                    studentId={student.id}
+                    imageUrl={avatarUrl}
+                    size="small"
+                    className="mx-2"
+                />
 
                 <div className="flex flex-col mx-5">
                     <Link

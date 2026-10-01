@@ -1,9 +1,10 @@
 import { MODALLEVELS } from '../../constants/levels';
-import { getInitials, getAvatarColor } from '../../utils/studentNames';
+import Avatar from '../../ui/Avatar';
 import { type Student } from '../../types';
 
 type ProfileHeaderProps = {
     student: Student;
+    avatarUrl?: string;
     className: string;
     currentTermAverage: number | null;
     isAdmin: boolean;
@@ -13,6 +14,7 @@ type ProfileHeaderProps = {
 
 function ProfileHeader({
     student,
+    avatarUrl,
     className,
     currentTermAverage,
     isAdmin,
@@ -27,12 +29,12 @@ function ProfileHeader({
     return (
         <div className="bg-white rounded-2xl border border-[#EFEAE1] p-6 flex items-center justify-between break-inside-avoid">
             <div className="flex items-center gap-4">
-                <div
-                    className="rounded-xl w-14 h-14 flex items-center justify-center font-semibold text-[#5C5343] shrink-0"
-                    style={{ backgroundColor: getAvatarColor(student.id) }}
-                >
-                    {getInitials(student.name)}
-                </div>
+                <Avatar
+                    name={student.name}
+                    studentId={student.id}
+                    imageUrl={avatarUrl}
+                    size="large"
+                />
                 <div>
                     <h1 className="text-2xl font-bold text-[#2E2A24]">{student.name}</h1>
                     <p className="text-sm text-[#5C5343]">{className}</p>

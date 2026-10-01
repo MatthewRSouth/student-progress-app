@@ -4,6 +4,7 @@ import { type Rating, type Category, type Student } from '../../types';
 
 type StudentListProps = {
     students: Student[];
+    avatarUrls: Record<number, string>;
     categories: Category[];
     termId: number;
     ratingsLookup: Record<string, Rating>;
@@ -12,6 +13,7 @@ type StudentListProps = {
 
 function StudentList({
     students,
+    avatarUrls,
     termId,
     categories,
     ratingsLookup,
@@ -24,6 +26,7 @@ function StudentList({
                     key={student.id}
                     termId={termId}
                     student={student}
+                    avatarUrl={avatarUrls[student.id]}
                     categories={categories}
                     ratingsLookup={ratingsLookup}
                     rowIndex={rowIndex}

@@ -5,6 +5,7 @@ import { Link, useNavigate, useParams } from 'react-router';
 import useFetch from '../../hooks/useFetch';
 import useRatingLookup from '../../hooks/useRatingLookup';
 import useCriteriaLanguage from '../../hooks/useCriteriaLanguage';
+import useAvatarUrls from '../../hooks/useAvatarUrls';
 //Component Imports
 import PageHeader from '../../ui/PageHeader';
 import ProfileHeader from './ProfileHeader';
@@ -57,7 +58,7 @@ function StudentProfile({ userId }: StudentProfileProps) {
         loading: studentsLoading,
         error: studentsError,
         refetch: refetchStudents,
-    } = useFetch<Student>('students', 'id, name, class_id, is_active');
+    } = useFetch<Student>('students', 'id, name, class_id, is_active, avatar_path');
     const {
         data: categories,
         loading: categoriesLoading,
@@ -107,9 +108,12 @@ function StudentProfile({ userId }: StudentProfileProps) {
     const ratingLookup = useRatingLookup(ratings);
 
     // The page title appears in the browser's print header (if left on) and names saved PDFs
-    const profileStudentName = students.find(
+    const profileStudent = students.find(
         (candidate) => candidate.id === studentId && candidate.is_active,
-    )?.name;
+    );
+    const profileStudentName = profileStudent?.name;
+    // Only this student's photo is fetched
+    const avatarUrls = useAvatarUrls(profileStudent ? [profileStudent] : []);
     useEffect(() => {
         if (!profileStudentName) return;
         const previousTitle = document.title;
@@ -285,6 +289,7 @@ function StudentProfile({ userId }: StudentProfileProps) {
 
                 <ProfileHeader
                     student={student}
+                    avatarUrl={avatarUrls[student.id]}
                     className={className}
                     currentTermAverage={currentTermAverage}
                     isAdmin={isAdmin}
@@ -400,6 +405,8 @@ function StudentProfile({ userId }: StudentProfileProps) {
                 <EditStudentModal
                     student={student}
                     classes={classes}
+                    avatarUrl={avatarUrls[student.id]}
+                    isAdmin={isAdmin}
                     refetchStudents={refetchStudents}
                     onEditStudentSuccess={() => setEditStudentModal(false)}
                     onClose={() => setEditStudentModal(false)}

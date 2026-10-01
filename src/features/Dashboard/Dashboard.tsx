@@ -4,6 +4,7 @@ import { useSearchParams } from 'react-router';
 //Custom Hooks
 import useFetch from '../../hooks/useFetch';
 import useCriteriaLanguage from '../../hooks/useCriteriaLanguage';
+import useAvatarUrls from '../../hooks/useAvatarUrls';
 //Component Imports
 import RatingsGrid from './RatingsGrid';
 import ArchivedStudentList from './ArchivedStudentList';
@@ -59,7 +60,7 @@ function Dashboard({ userId }: DashboardProps) {
         data: students,
         error: studentsError,
         refetch: refetchStudents,
-    } = useFetch<Student>('students', 'id, name, class_id,is_active');
+    } = useFetch<Student>('students', 'id, name, class_id, is_active, avatar_path');
     const { data: terms, error: termsError } = useFetch<Term>(
         'terms',
         'id, term, created_at',
@@ -94,6 +95,23 @@ function Dashboard({ userId }: DashboardProps) {
     //Memo to rate look up
     const ratingLookup = useRatingLookup(ratings);
 
+    // Students Filter
+    // The fetch has no fixed order (an edited row comes back last), so keep students in the order they were added
+    const studentsInAddedOrder = [...students].sort(
+        (earlierStudent, laterStudent) => earlierStudent.id - laterStudent.id,
+    );
+    const visibleStudents = studentsInAddedOrder.filter(
+        (s) => s.class_id === selectedClassId && s.is_active,
+    );
+    // The archived view is the one place that lists inactive students
+    const archivedStudents = studentsInAddedOrder.filter(
+        (student) => !student.is_active,
+    );
+    // Photos are only fetched for the students on screen: archived ones only on the Archived tab
+    const avatarUrls = useAvatarUrls(
+        isArchivedViewSelected ? archivedStudents : visibleStudents,
+    );
+
     const handleSignOut = async () => {
         await supabase.auth.signOut();
     };
@@ -108,12 +126,7 @@ function Dashboard({ userId }: DashboardProps) {
         return <p>There was an error loading the dashboard.</p>;
     }
 
-    // Students and Categories Filter
-    const visibleStudents = students.filter(
-        (s) => s.class_id === selectedClassId && s.is_active,
-    );
-    // The archived view is the one place that lists inactive students
-    const archivedStudents = students.filter((student) => !student.is_active);
+    // Categories Filter
     // The fetch has no fixed order (an edited row comes back last), so keep criteria in the order they were created
     const visibleCategories = categories
         .filter((c) => c.class_id === selectedClassId && c.is_active)
@@ -183,6 +196,7 @@ function Dashboard({ userId }: DashboardProps) {
                 {isArchivedViewSelected ? (
                     <ArchivedStudentList
                         archivedStudents={archivedStudents}
+                        avatarUrls={avatarUrls}
                         classes={classes}
                         isAdmin={isAdmin}
                         refetchStudents={refetchStudents}
@@ -198,6 +212,7 @@ function Dashboard({ userId }: DashboardProps) {
                     <RatingsGrid
                         termId={effectiveTermId}
                         students={visibleStudents}
+                        avatarUrls={avatarUrls}
                         categories={visibleCategories}
                         criteriaLanguage={criteriaLanguage}
                         ratingsLookup={ratingLookup}
